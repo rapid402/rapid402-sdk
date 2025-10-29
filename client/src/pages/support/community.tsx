@@ -66,12 +66,12 @@ export default function Community() {
           <CardContent>
             <Button variant="outline" asChild className="w-full">
               <a
-                href="https://x402.org"
+                href="https://x.com/rapid402"
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="link-twitter"
               >
-                Visit x402.org
+                Follow @rapid402
               </a>
             </Button>
           </CardContent>
