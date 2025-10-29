@@ -183,18 +183,19 @@ export default function PayPage() {
           </Alert>
 
           <div className="space-y-2">
-            <Label htmlFor="from">From Address</Label>
+            <Label htmlFor="from">Your Wallet Address (From)</Label>
             <Input
               id="from"
-              placeholder="Your wallet address"
+              placeholder="Your wallet address (0x... or Solana address)"
               value={from}
               onChange={(e) => setFrom(e.target.value)}
               data-testid="input-from"
             />
+            <p className="text-xs text-muted-foreground">The address sending the payment</p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="v">Signature V</Label>
+            <Label htmlFor="v">Recovery ID (v)</Label>
             <Input
               id="v"
               placeholder="27 or 28 (or 0x1b/0x1c)"
@@ -202,28 +203,31 @@ export default function PayPage() {
               onChange={(e) => setV(e.target.value)}
               data-testid="input-v"
             />
+            <p className="text-xs text-muted-foreground">Usually 27 or 28 - found in your wallet signature</p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="r">Signature R</Label>
+            <Label htmlFor="r">Signature Component R</Label>
             <Input
               id="r"
-              placeholder="0x..."
+              placeholder="0x followed by 64 hex characters"
               value={r}
               onChange={(e) => setR(e.target.value)}
               data-testid="input-r"
             />
+            <p className="text-xs text-muted-foreground">First half of the signature from your wallet</p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="s">Signature S</Label>
+            <Label htmlFor="s">Signature Component S</Label>
             <Input
               id="s"
-              placeholder="0x..."
+              placeholder="0x followed by 64 hex characters"
               value={s}
               onChange={(e) => setS(e.target.value)}
               data-testid="input-s"
             />
+            <p className="text-xs text-muted-foreground">Second half of the signature from your wallet</p>
           </div>
 
           <Button
