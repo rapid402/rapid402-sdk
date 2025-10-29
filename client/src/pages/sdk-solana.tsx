@@ -2,11 +2,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { ExternalLink, Github, Package, BookOpen, Code2 } from "lucide-react";
 
-export default function SdkPage() {
+export default function SolanaSdkPage() {
   return (
     <div className="container mx-auto max-w-4xl px-6 md:px-8 py-12">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-4">@rapid402/sdk</h1>
+        <h1 className="text-4xl font-bold mb-4">Solana SDK Demo</h1>
         <p className="text-lg text-muted-foreground">
           TypeScript SDK for integrating x402 payments with Rapid402 facilitator on Solana
         </p>
@@ -50,25 +50,25 @@ export default function SdkPage() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Code2 className="h-5 w-5" />
-              Client-Side Usage
+              Client-Side Usage (Solana)
             </CardTitle>
             <CardDescription>
-              Automatic 402 payment handling in your browser or Node.js app
+              Automatic 402 payment handling with Solana wallet support
             </CardDescription>
           </CardHeader>
           <CardContent>
             <code className="block p-4 bg-muted rounded-md font-mono text-sm whitespace-pre overflow-x-auto">
 {`import { createRapid402Client } from '@rapid402/sdk/client';
 
-const rapid402 = createRapid402Client({
+const solanaClient = createRapid402Client({
   facilitatorUrl: 'https://rapid402.com/api/v1',
-  network: 'solana-devnet',
-  wallet: myWalletAdapter,
+  network: 'solana-mainnet', // or 'solana-devnet'
+  wallet: mySolanaWallet,
   maxPaymentAmount: BigInt('1000000000') // 1 SOL max
 });
 
 // Automatically handles 402 payments!
-const response = await rapid402.fetch('/api/premium-data');
+const response = await solanaClient.fetch('/api/premium-data');
 const data = await response.json();`}
             </code>
           </CardContent>
@@ -78,25 +78,28 @@ const data = await response.json();`}
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Code2 className="h-5 w-5" />
-              Server-Side Usage
+              Server-Side Usage (Solana)
             </CardTitle>
             <CardDescription>
-              Create payment-gated APIs with Express middleware
+              Create payment-gated APIs with Express middleware for Solana payments
             </CardDescription>
           </CardHeader>
           <CardContent>
             <code className="block p-4 bg-muted rounded-md font-mono text-sm whitespace-pre overflow-x-auto">
 {`import { Rapid402PaymentHandler } from '@rapid402/sdk/server';
 
-const rapid402 = new Rapid402PaymentHandler({
+const solanaHandler = new Rapid402PaymentHandler({
   facilitatorUrl: 'https://rapid402.com/api/v1',
   network: 'solana-mainnet',
-  treasuryAddress: process.env.TREASURY_WALLET
+  treasuryAddress: process.env.SOLANA_TREASURY_WALLET
 });
 
-// Payment-gated endpoint with one line!
+// Payment-gated endpoint with Solana!
 app.get('/api/premium', 
-  rapid402.middleware({ amount: '1000000000' }),
+  solanaHandler.middleware({ 
+    amount: '1000000000', // 1 SOL
+    asset: 'SOL'
+  }),
   (req, res) => res.json({ data: 'Premium content' })
 );`}
             </code>
@@ -107,7 +110,7 @@ app.get('/api/premium',
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BookOpen className="h-5 w-5" />
-              Features
+              Solana-Specific Features
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -115,31 +118,7 @@ app.get('/api/premium',
               <li className="flex items-start gap-2">
                 <span className="text-primary mt-0.5">✓</span>
                 <div>
-                  <strong>Client-Side Integration:</strong> Automatic 402 payment handling with Solana wallet support
-                </div>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">✓</span>
-                <div>
-                  <strong>Server-Side Middleware:</strong> Express/Connect middleware for payment-gated APIs
-                </div>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">✓</span>
-                <div>
-                  <strong>Type-Safe:</strong> Full TypeScript support with detailed types from protocol schema
-                </div>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">✓</span>
-                <div>
-                  <strong>Multiple Exports:</strong> Import from <code className="text-xs bg-muted px-1 py-0.5 rounded">@rapid402/sdk</code>, <code className="text-xs bg-muted px-1 py-0.5 rounded">@rapid402/sdk/client</code>, or <code className="text-xs bg-muted px-1 py-0.5 rounded">@rapid402/sdk/server</code>
-                </div>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary mt-0.5">✓</span>
-                <div>
-                  <strong>Solana Networks:</strong> Supports both Solana mainnet and devnet
+                  <strong>Ed25519 Signature Verification:</strong> Cryptographic verification of Solana wallet signatures
                 </div>
               </li>
               <li className="flex items-start gap-2">
@@ -148,54 +127,29 @@ app.get('/api/premium',
                   <strong>SPL Token Support:</strong> Works with SOL, USDC, USDT, and all SPL tokens
                 </div>
               </li>
-            </ul>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Documentation</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">
-              Complete documentation is available in the GitHub repository:
-            </p>
-            <ul className="space-y-2 text-sm">
-              <li className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-muted-foreground" />
-                <a 
-                  href="https://github.com/rapid402/rapid402-sdk#readme" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline flex items-center gap-1"
-                >
-                  Quick Start Guide
-                  <ExternalLink className="h-3 w-3" />
-                </a>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <div>
+                  <strong>Network Support:</strong> Solana mainnet and devnet with seamless switching
+                </div>
               </li>
-              <li className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-muted-foreground" />
-                <a 
-                  href="https://github.com/rapid402/rapid402-sdk#api-reference" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline flex items-center gap-1"
-                >
-                  API Reference
-                  <ExternalLink className="h-3 w-3" />
-                </a>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <div>
+                  <strong>Ultra-Low Fees:</strong> Leverage Solana's low transaction costs for micropayments
+                </div>
               </li>
-              <li className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-muted-foreground" />
-                <a 
-                  href="https://github.com/rapid402/rapid402-sdk#examples" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-primary hover:underline flex items-center gap-1"
-                >
-                  Usage Examples
-                  <ExternalLink className="h-3 w-3" />
-                </a>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <div>
+                  <strong>Fast Finality:</strong> Sub-second confirmation times for instant payments
+                </div>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <div>
+                  <strong>Wallet Adapter Compatible:</strong> Works with all Solana wallet adapters
+                </div>
               </li>
             </ul>
           </CardContent>

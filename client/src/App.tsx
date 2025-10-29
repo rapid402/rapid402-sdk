@@ -20,7 +20,8 @@ import SupportedNetworks from "@/pages/api/supported";
 import JavaScriptExample from "@/pages/examples/javascript";
 import PythonExample from "@/pages/examples/python";
 import CurlExample from "@/pages/examples/curl";
-import SdkPage from "@/pages/sdk";
+import SolanaSdkPage from "@/pages/sdk-solana";
+import BaseSdkPage from "@/pages/sdk-base";
 import AIAssistant from "@/pages/ai-assistant";
 import Whitepaper from "@/pages/whitepaper";
 import FAQ from "@/pages/support/faq";
@@ -43,7 +44,8 @@ function Router() {
       <Route path="/examples/javascript" component={JavaScriptExample} />
       <Route path="/examples/python" component={PythonExample} />
       <Route path="/examples/curl" component={CurlExample} />
-      <Route path="/sdk-demo" component={SdkPage} />
+      <Route path="/sdk/solana" component={SolanaSdkPage} />
+      <Route path="/sdk/base" component={BaseSdkPage} />
       <Route path="/ai-assistant" component={AIAssistant} />
       <Route path="/whitepaper" component={Whitepaper} />
       <Route path="/support/faq" component={FAQ} />

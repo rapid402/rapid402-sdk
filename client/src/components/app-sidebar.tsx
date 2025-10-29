@@ -36,9 +36,10 @@ const menuItems = [
     ],
   },
   {
-    title: "SDK",
+    title: "SDK Demos",
     items: [
-      { title: "Live Demo", url: "/sdk-demo", icon: Package },
+      { title: "Solana Demo", url: "/sdk/solana", icon: Package },
+      { title: "BASE Demo", url: "/sdk/base", icon: Package },
     ],
   },
   {
@@ -61,7 +62,7 @@ const menuItems = [
 export function AppSidebar() {
   const [location] = useLocation();
   const [openSections, setOpenSections] = useState<Set<string>>(
-    new Set(["Getting Started", "API Reference", "SDK", "Examples", "Support"])
+    new Set(["Getting Started", "API Reference", "SDK Demos", "Examples", "Support"])
   );
 
   const toggleSection = (title: string) => {
