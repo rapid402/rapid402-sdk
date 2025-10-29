@@ -12,6 +12,7 @@ export default function StatusPage() {
 
   const isHealthy = health?.status === 'healthy';
   const uptimeHours = health?.uptime ? Math.floor(health.uptime / 3600) : 0;
+  const uptimeMinutes = health?.uptime ? Math.floor((health.uptime % 3600) / 60) : 0;
   const uptimeDays = Math.floor(uptimeHours / 24);
 
   return (
@@ -144,7 +145,7 @@ export default function StatusPage() {
               <div className="p-4 border rounded-md">
                 <p className="text-sm text-muted-foreground mb-1">Current Uptime</p>
                 <p className="text-2xl font-bold" data-testid="uptime-current">
-                  {isLoading ? '...' : uptimeDays > 0 ? `${uptimeDays}d ${uptimeHours % 24}h` : `${uptimeHours}h`}
+                  {isLoading ? '...' : uptimeDays > 0 ? `${uptimeDays}d ${uptimeHours % 24}h ${uptimeMinutes}m` : `${uptimeHours}h ${uptimeMinutes}m`}
                 </p>
               </div>
               <div className="p-4 border rounded-md">
