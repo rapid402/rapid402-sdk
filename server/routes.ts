@@ -28,10 +28,9 @@ function getSolanaService(network: string): SolanaService {
   return network === "solana-mainnet" ? solanaMainnet : solanaDevnet;
 }
 
-// the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+// Initialize OpenAI with standard API key
 const openai = new OpenAI({
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
+  apiKey: process.env.OPENAI_API_KEY
 });
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -152,9 +151,9 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
       ];
 
       const completion = await openai.chat.completions.create({
-        model: "gpt-5", // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+        model: "gpt-4o",
         messages,
-        max_completion_tokens: 2048,
+        max_tokens: 2048,
       });
 
       const reply = completion.choices[0]?.message?.content || "I'm sorry, I couldn't generate a response.";
