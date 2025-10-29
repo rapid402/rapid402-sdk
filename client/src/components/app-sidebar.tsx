@@ -42,6 +42,7 @@ const menuItems = [
       { title: "Solana Demo", url: "/sdk/solana", icon: Package },
       { title: "BASE Demo", url: "/sdk/base", icon: Package },
       { title: "BNB Demo", url: "/sdk/bnb", icon: Package },
+      { title: "Bitcoin Demo", url: "/sdk/bitcoin", icon: Package },
     ],
   },
   {
