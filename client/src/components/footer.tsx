@@ -1,11 +1,24 @@
 import { Code2, Github } from "lucide-react";
 import { SiX } from "react-icons/si";
+import { useLocation } from "wouter";
 
 export function Footer() {
+  const [location, setLocation] = useLocation();
+
   const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+    if (location !== "/") {
+      setLocation(`/#${id}`);
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
+    } else {
+      const element = document.getElementById(id);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
     }
   };
 
@@ -37,9 +50,7 @@ export function Footer() {
               </li>
               <li>
                 <a
-                  href="https://x402.org/"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  href="/whitepaper"
                   className="text-muted-foreground hover:text-foreground transition-colors"
                   data-testid="footer-link-specification"
                 >
