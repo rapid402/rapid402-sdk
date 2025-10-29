@@ -13,6 +13,7 @@ import OpenAI from "openai";
 import { SolanaService, getTokenMintAddress } from "./solana-service";
 import { BaseService, getTokenContractAddress } from "./base-service";
 import { BscService, getTokenContractAddress as getBscTokenAddress } from "./bsc-service";
+import { BitcoinService } from "./btc-service";
 import { Keypair } from "@solana/web3.js";
 
 const startTime = Date.now();
@@ -48,11 +49,25 @@ const bscTestnet = new BscService({
   facilitatorPrivateKey: process.env.BSC_FACILITATOR_PRIVATE_KEY,
 });
 
+// Initialize Bitcoin services
+const bitcoinMainnet = new BitcoinService({
+  rpcUrl: process.env.BITCOIN_RPC_URL || "https://blockstream.info/api",
+  network: "mainnet",
+  facilitatorPrivateKey: process.env.BITCOIN_FACILITATOR_PRIVATE_KEY,
+});
+
+const bitcoinTestnet = new BitcoinService({
+  rpcUrl: process.env.BITCOIN_TESTNET_RPC_URL || "https://blockstream.info/testnet/api",
+  network: "testnet",
+  facilitatorPrivateKey: process.env.BITCOIN_FACILITATOR_PRIVATE_KEY,
+});
+
 // Helper to determine network type
-function getNetworkType(network: string): "solana" | "base" | "bsc" | "unknown" {
+function getNetworkType(network: string): "solana" | "base" | "bsc" | "bitcoin" | "unknown" {
   if (network.startsWith("solana-")) return "solana";
   if (network.startsWith("base-")) return "base";
   if (network.startsWith("bsc-")) return "bsc";
+  if (network.startsWith("bitcoin-")) return "bitcoin";
   return "unknown";
 }
 
@@ -69,6 +84,11 @@ function getBaseService(network: string): BaseService {
 // Helper to get the right BSC service
 function getBscService(network: string): BscService {
   return network === "bsc-mainnet" ? bscMainnet : bscTestnet;
+}
+
+// Helper to get the right Bitcoin service
+function getBitcoinService(network: string): BitcoinService {
+  return network === "bitcoin-mainnet" ? bitcoinMainnet : bitcoinTestnet;
 }
 
 // Initialize OpenAI with standard API key
@@ -280,6 +300,9 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
         } else if (networkType === "bsc") {
           const bscService = getBscService(paymentPayload.network);
           verification = await bscService.verifyPaymentPayload(payload);
+        } else if (networkType === "bitcoin") {
+          const bitcoinService = getBitcoinService(paymentPayload.network);
+          verification = await bitcoinService.verifyPaymentPayload(payload);
         } else {
           const response: VerifyResponse = {
             isValid: false,
@@ -378,10 +401,12 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
       const hasSolanaKey = !!process.env.FACILITATOR_PRIVATE_KEY;
       const hasBaseKey = !!process.env.BASE_FACILITATOR_PRIVATE_KEY;
       const hasBscKey = !!process.env.BSC_FACILITATOR_PRIVATE_KEY;
+      const hasBitcoinKey = !!process.env.BITCOIN_FACILITATOR_PRIVATE_KEY;
       
       if ((networkType === "solana" && !hasSolanaKey) || 
           (networkType === "base" && !hasBaseKey) ||
-          (networkType === "bsc" && !hasBscKey)) {
+          (networkType === "bsc" && !hasBscKey) ||
+          (networkType === "bitcoin" && !hasBitcoinKey)) {
         // Return simulated settlement if no private key configured
         console.warn("Settlement simulated - no facilitator private key configured");
         const mockTxHash = Array.from({ length: 66 }, () => 
@@ -503,6 +528,27 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
               BigInt(payload.value as string)
             );
           }
+        } else if (networkType === "bitcoin") {
+          // Bitcoin settlement
+          const bitcoinService = getBitcoinService(paymentPayload.network);
+          
+          // Bitcoin only supports BTC (no tokens on Bitcoin L1)
+          const isBitcoinTransfer = !paymentRequirements.asset || paymentRequirements.asset === 'BTC';
+
+          if (!isBitcoinTransfer) {
+            const response: SettleResponse = {
+              isValid: false,
+              error: `Unsupported asset on Bitcoin: ${paymentRequirements.asset}`,
+            };
+            return res.json(response);
+          }
+
+          // Transfer BTC (native token)
+          // Amount should be in satoshis
+          transactionHash = await bitcoinService.transferBTC(
+            payload.to as string,
+            BigInt(payload.value as string)
+          );
         } else {
           const response: SettleResponse = {
             isValid: false,
@@ -608,6 +654,18 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
           chainId: 97,
           rpcUrl: "https://data-seed-prebsc-1-s1.binance.org:8545",
           explorerUrl: "https://testnet.bscscan.com",
+        },
+        {
+          network: "bitcoin-mainnet",
+          chainId: 0,
+          rpcUrl: "https://blockstream.info/api",
+          explorerUrl: "https://blockstream.info",
+        },
+        {
+          network: "bitcoin-testnet",
+          chainId: 1,
+          rpcUrl: "https://blockstream.info/testnet/api",
+          explorerUrl: "https://blockstream.info/testnet",
         },
       ],
       paymentSchemes: ["exact"],
@@ -717,6 +775,20 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
           decimals: 18,
           network: "bsc-testnet",
         },
+        {
+          symbol: "BTC",
+          name: "Bitcoin (Native Token)",
+          contractAddress: "0x0000000000000000000000000000000000000000",
+          decimals: 8,
+          network: "bitcoin-mainnet",
+        },
+        {
+          symbol: "BTC",
+          name: "Bitcoin Testnet (Native Token)",
+          contractAddress: "0x0000000000000000000000000000000000000000",
+          decimals: 8,
+          network: "bitcoin-testnet",
+        },
       ],
       capabilities: [
         "Verify Payments",
@@ -724,7 +796,8 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
         "SPL Token Support",
         "ERC-20 Token Support",
         "BEP-20 Token Support",
-        "Multi-Chain (Solana + BASE + BSC)",
+        "Bitcoin Support",
+        "Multi-Chain (Solana + BASE + BSC + Bitcoin)",
       ],
     };
 

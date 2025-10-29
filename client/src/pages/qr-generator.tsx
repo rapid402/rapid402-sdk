@@ -153,6 +153,7 @@ export default function QRGeneratorPage() {
                   <SelectItem value="ETH">ETH</SelectItem>
                   <SelectItem value="BNB">BNB</SelectItem>
                   <SelectItem value="BUSD">BUSD</SelectItem>
+                  <SelectItem value="BTC">BTC</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -170,6 +171,8 @@ export default function QRGeneratorPage() {
                   <SelectItem value="base-sepolia">BASE Sepolia</SelectItem>
                   <SelectItem value="bsc-mainnet">BSC Mainnet</SelectItem>
                   <SelectItem value="bsc-testnet">BSC Testnet</SelectItem>
+                  <SelectItem value="bitcoin-mainnet">Bitcoin Mainnet</SelectItem>
+                  <SelectItem value="bitcoin-testnet">Bitcoin Testnet</SelectItem>
                 </SelectContent>
               </Select>
             </div>
