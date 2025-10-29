@@ -38,10 +38,7 @@ export default function PayPage() {
 
   const submitPaymentMutation = useMutation({
     mutationFn: async (signature: { from: string; to: string; value: string; v: string; r: string; s: string }) => {
-      const response = await apiRequest(`/api/v1/payment-requests/${paymentId}/submit`, {
-        method: "POST",
-        body: JSON.stringify({ signature }),
-      });
+      const response = await apiRequest("POST", `/api/v1/payment-requests/${paymentId}/submit`, { signature });
       return response.json();
     },
     onSuccess: (response: any) => {

@@ -29,10 +29,7 @@ export default function QRGeneratorPage() {
       recipientAddress: string;
       description?: string;
     }) => {
-      const response = await apiRequest("/api/v1/payment-requests", {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+      const response = await apiRequest("POST", "/api/v1/payment-requests", data);
       return response.json();
     },
     onSuccess: async (response: any) => {
