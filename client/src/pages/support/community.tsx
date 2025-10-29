@@ -1,6 +1,6 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Github, Twitter, MessageCircle, Book } from "lucide-react";
+import { Github, Twitter, Bot, Book } from "lucide-react";
 
 export default function Community() {
   return (
@@ -18,13 +18,13 @@ export default function Community() {
             <Github className="h-8 w-8 text-primary mb-2" />
             <CardTitle>GitHub</CardTitle>
             <CardDescription>
-              View source code, report issues, and contribute to the project
+              View SDK source code, report issues, and contribute
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button variant="outline" asChild className="w-full">
               <a
-                href="https://github.com/x402"
+                href="https://github.com/rapid402/rapid402-sdk"
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="link-github-community"
@@ -37,21 +37,21 @@ export default function Community() {
 
         <Card className="hover-elevate">
           <CardHeader>
-            <MessageCircle className="h-8 w-8 text-primary mb-2" />
-            <CardTitle>Discord</CardTitle>
+            <Bot className="h-8 w-8 text-primary mb-2" />
+            <CardTitle>AI Assistant</CardTitle>
             <CardDescription>
-              Join our Discord server for real-time chat and support
+              Get instant help from our AI-powered development assistant
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button variant="outline" asChild className="w-full">
               <a
-                href="https://discord.gg/x402"
+                href="https://replit.com/@rapid402/rapid402"
                 target="_blank"
                 rel="noopener noreferrer"
-                data-testid="link-discord"
+                data-testid="link-ai-assistant"
               >
-                Join Discord
+                Chat with AI
               </a>
             </Button>
           </CardContent>
@@ -60,20 +60,20 @@ export default function Community() {
         <Card className="hover-elevate">
           <CardHeader>
             <Twitter className="h-8 w-8 text-primary mb-2" />
-            <CardTitle>Twitter</CardTitle>
+            <CardTitle>X (Twitter)</CardTitle>
             <CardDescription>
-              Follow us for updates, announcements, and protocol news
+              Follow for updates, announcements, and x402 protocol news
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button variant="outline" asChild className="w-full">
               <a
-                href="https://twitter.com/x402protocol"
+                href="https://x402.org"
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="link-twitter"
               >
-                Follow on Twitter
+                Visit x402.org
               </a>
             </Button>
           </CardContent>
@@ -84,18 +84,18 @@ export default function Community() {
             <Book className="h-8 w-8 text-primary mb-2" />
             <CardTitle>Protocol Specification</CardTitle>
             <CardDescription>
-              Read the full x402 protocol specification
+              Read the complete x402 protocol whitepaper
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Button variant="outline" asChild className="w-full">
               <a
-                href="https://x402.org/"
+                href="https://www.x402.org/x402-whitepaper.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
                 data-testid="link-spec"
               >
-                Read Spec
+                Read Whitepaper
               </a>
             </Button>
           </CardContent>
