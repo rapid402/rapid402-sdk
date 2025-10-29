@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Link } from "wouter";
 import logoImage from "@assets/rapid402-logo-transparent.png";
@@ -61,7 +60,6 @@ export function Header() {
               <SiX className="h-4 w-4" />
             </a>
           </Button>
-          <ThemeToggle />
           <Button
             size="sm"
             asChild
