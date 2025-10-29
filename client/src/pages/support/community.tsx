@@ -88,9 +88,7 @@ export default function Community() {
           <CardContent>
             <Button variant="outline" asChild className="w-full">
               <a
-                href="https://www.x402.org/x402-whitepaper.pdf"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/whitepaper"
                 data-testid="link-spec"
               >
                 Read Whitepaper

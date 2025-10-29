@@ -21,6 +21,7 @@ import PythonExample from "@/pages/examples/python";
 import CurlExample from "@/pages/examples/curl";
 import SdkPage from "@/pages/sdk";
 import AIAssistant from "@/pages/ai-assistant";
+import Whitepaper from "@/pages/whitepaper";
 import FAQ from "@/pages/support/faq";
 import Community from "@/pages/support/community";
 import PrivacyPolicy from "@/pages/privacy";
@@ -42,6 +43,7 @@ function Router() {
       <Route path="/examples/curl" component={CurlExample} />
       <Route path="/sdk-demo" component={SdkPage} />
       <Route path="/ai-assistant" component={AIAssistant} />
+      <Route path="/whitepaper" component={Whitepaper} />
       <Route path="/support/faq" component={FAQ} />
       <Route path="/support/community" component={Community} />
       <Route path="/privacy" component={PrivacyPolicy} />
