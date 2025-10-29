@@ -23,6 +23,8 @@ import CurlExample from "@/pages/examples/curl";
 import SolanaSdkPage from "@/pages/sdk-solana";
 import BaseSdkPage from "@/pages/sdk-base";
 import BnbSdkPage from "@/pages/sdk-bnb";
+import QRGeneratorPage from "@/pages/qr-generator";
+import PayPage from "@/pages/pay";
 import AIAssistant from "@/pages/ai-assistant";
 import Whitepaper from "@/pages/whitepaper";
 import FAQ from "@/pages/support/faq";
@@ -48,6 +50,8 @@ function Router() {
       <Route path="/sdk/solana" component={SolanaSdkPage} />
       <Route path="/sdk/base" component={BaseSdkPage} />
       <Route path="/sdk/bnb" component={BnbSdkPage} />
+      <Route path="/qr-generator" component={QRGeneratorPage} />
+      <Route path="/pay/:id" component={PayPage} />
       <Route path="/ai-assistant" component={AIAssistant} />
       <Route path="/whitepaper" component={Whitepaper} />
       <Route path="/support/faq" component={FAQ} />
