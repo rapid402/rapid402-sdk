@@ -40,6 +40,60 @@ export function constructBaseSigningMessage(payload: {
 }
 
 /**
+ * Constructs the canonical signing message for Bitcoin signatures.
+ * 
+ * Format: from|to|value|validAfter|validBefore|nonce
+ * Same format as BASE for consistency across chains.
+ * 
+ * @param payload - The payment payload containing signature fields
+ * @returns The canonical message string to be signed/verified
+ */
+export function constructBitcoinSigningMessage(payload: {
+  from: string;
+  to: string;
+  value: string;
+  validAfter?: string;
+  validBefore?: string;
+  nonce?: string;
+}): string {
+  return [
+    payload.from,
+    payload.to,
+    payload.value,
+    payload.validAfter || '0',
+    payload.validBefore || '999999999999',
+    payload.nonce || '0x0'
+  ].join('|');
+}
+
+/**
+ * Constructs the canonical signing message for BSC (Binance Smart Chain) signatures.
+ * 
+ * Format: from|to|value|validAfter|validBefore|nonce
+ * Same format as BASE for consistency across EVM chains.
+ * 
+ * @param payload - The payment payload containing signature fields
+ * @returns The canonical message string to be signed/verified
+ */
+export function constructBscSigningMessage(payload: {
+  from: string;
+  to: string;
+  value: string;
+  validAfter?: string;
+  validBefore?: string;
+  nonce?: string;
+}): string {
+  return [
+    payload.from,
+    payload.to,
+    payload.value,
+    payload.validAfter || '0',
+    payload.validBefore || '999999999999',
+    payload.nonce || '0x0'
+  ].join('|');
+}
+
+/**
  * Example usage:
  * 
  * ```typescript
