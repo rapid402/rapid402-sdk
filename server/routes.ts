@@ -10,6 +10,7 @@ import {
 } from "@shared/schema";
 import OpenAI from "openai";
 import { SolanaService, getTokenMintAddress } from "./solana-service";
+import { BaseService, getTokenContractAddress } from "./base-service";
 import { Keypair } from "@solana/web3.js";
 
 const startTime = Date.now();
@@ -23,9 +24,32 @@ const solanaDevnet = new SolanaService({
   rpcUrl: process.env.SOLANA_DEVNET_RPC_URL || "https://api.devnet.solana.com",
 });
 
+// Initialize BASE services
+const baseMainnet = new BaseService({
+  rpcUrl: process.env.BASE_RPC_URL || "https://mainnet.base.org",
+  facilitatorPrivateKey: process.env.BASE_FACILITATOR_PRIVATE_KEY,
+});
+
+const baseSepolia = new BaseService({
+  rpcUrl: process.env.BASE_SEPOLIA_RPC_URL || "https://sepolia.base.org",
+  facilitatorPrivateKey: process.env.BASE_FACILITATOR_PRIVATE_KEY,
+});
+
+// Helper to determine network type
+function getNetworkType(network: string): "solana" | "base" | "unknown" {
+  if (network.startsWith("solana-")) return "solana";
+  if (network.startsWith("base-")) return "base";
+  return "unknown";
+}
+
 // Helper to get the right Solana service
 function getSolanaService(network: string): SolanaService {
   return network === "solana-mainnet" ? solanaMainnet : solanaDevnet;
+}
+
+// Helper to get the right BASE service
+function getBaseService(network: string): BaseService {
+  return network === "base-mainnet" ? baseMainnet : baseSepolia;
 }
 
 // Initialize OpenAI with standard API key
@@ -201,10 +225,26 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
       // For exact scheme, validate payment payload structure
       if (paymentPayload.scheme === "exact") {
         const payload = paymentPayload.payload;
+        const networkType = getNetworkType(paymentPayload.network);
         
-        // Use Solana service to verify payment payload
-        const solanaService = getSolanaService(paymentPayload.network);
-        const verification = await solanaService.verifyPaymentPayload(payload);
+        if (networkType === "unknown") {
+          const response: VerifyResponse = {
+            isValid: false,
+            error: "Unsupported network",
+          };
+          return res.json(response);
+        }
+
+        // Use appropriate service to verify payment payload
+        let verification: { isValid: boolean; payer?: string; error?: string };
+        
+        if (networkType === "solana") {
+          const solanaService = getSolanaService(paymentPayload.network);
+          verification = await solanaService.verifyPaymentPayload(payload);
+        } else {
+          const baseService = getBaseService(paymentPayload.network);
+          verification = await baseService.verifyPaymentPayload(payload);
+        }
 
         if (!verification.isValid) {
           const response: VerifyResponse = {
@@ -282,11 +322,24 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
         return res.json(response);
       }
 
+      const networkType = getNetworkType(paymentPayload.network);
+      
+      if (networkType === "unknown") {
+        const response: SettleResponse = {
+          isValid: false,
+          error: "Unsupported network",
+        };
+        return res.json(response);
+      }
+
       // Check if facilitator keypair is configured
-      if (!process.env.FACILITATOR_PRIVATE_KEY) {
+      const hasSolanaKey = !!process.env.FACILITATOR_PRIVATE_KEY;
+      const hasBaseKey = !!process.env.BASE_FACILITATOR_PRIVATE_KEY;
+      
+      if ((networkType === "solana" && !hasSolanaKey) || (networkType === "base" && !hasBaseKey)) {
         // Return simulated settlement if no private key configured
-        console.warn("Settlement simulated - no FACILITATOR_PRIVATE_KEY configured");
-        const mockTxHash = Array.from({ length: 88 }, () => 
+        console.warn("Settlement simulated - no facilitator private key configured");
+        const mockTxHash = Array.from({ length: 66 }, () => 
           "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"[Math.floor(Math.random() * 62)]
         ).join("");
 
@@ -299,47 +352,81 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
       }
 
       try {
-        // Parse facilitator keypair from environment
-        const privateKeyBytes = Buffer.from(process.env.FACILITATOR_PRIVATE_KEY, 'base64');
-        const facilitatorKeypair = Keypair.fromSecretKey(privateKeyBytes);
-
-        const solanaService = getSolanaService(paymentPayload.network);
         const payload = paymentPayload.payload;
-
         let transactionHash: string;
 
-        // Determine if this is SOL or SPL token transfer
-        // For SPL tokens, we need the mint address
-        const isSolTransfer = !paymentRequirements.asset || paymentRequirements.asset === 'SOL';
+        if (networkType === "solana") {
+          // Solana settlement
+          const privateKeyBytes = Buffer.from(process.env.FACILITATOR_PRIVATE_KEY!, 'base64');
+          const facilitatorKeypair = Keypair.fromSecretKey(privateKeyBytes);
+          const solanaService = getSolanaService(paymentPayload.network);
 
-        if (isSolTransfer) {
-          // Transfer SOL (native token)
-          transactionHash = await solanaService.transferSOL(
-            facilitatorKeypair,
-            payload.to as string,
-            BigInt(payload.value as string)
-          );
-        } else {
-          // Transfer SPL Token (USDC, USDT, etc.)
-          const tokenMintAddress = getTokenMintAddress(
-            paymentRequirements.asset as string,
-            paymentPayload.network as "solana-mainnet" | "solana-devnet"
-          );
+          // Determine if this is SOL or SPL token transfer
+          const isSolTransfer = !paymentRequirements.asset || paymentRequirements.asset === 'SOL';
 
-          if (!tokenMintAddress) {
-            const response: SettleResponse = {
-              isValid: false,
-              error: `Unsupported asset: ${paymentRequirements.asset}`,
-            };
-            return res.json(response);
+          if (isSolTransfer) {
+            // Transfer SOL (native token)
+            transactionHash = await solanaService.transferSOL(
+              facilitatorKeypair,
+              payload.to as string,
+              BigInt(payload.value as string)
+            );
+          } else {
+            // Transfer SPL Token (USDC, USDT, etc.)
+            const tokenMintAddress = getTokenMintAddress(
+              paymentRequirements.asset as string,
+              paymentPayload.network as "solana-mainnet" | "solana-devnet"
+            );
+
+            if (!tokenMintAddress) {
+              const response: SettleResponse = {
+                isValid: false,
+                error: `Unsupported asset: ${paymentRequirements.asset}`,
+              };
+              return res.json(response);
+            }
+
+            transactionHash = await solanaService.transferSPLToken(
+              facilitatorKeypair,
+              payload.to as string,
+              tokenMintAddress,
+              BigInt(payload.value as string)
+            );
           }
+        } else {
+          // BASE settlement
+          const baseService = getBaseService(paymentPayload.network);
+          
+          // Determine if this is ETH or ERC-20 token transfer
+          const isNativeTransfer = !paymentRequirements.asset || paymentRequirements.asset === 'ETH';
 
-          transactionHash = await solanaService.transferSPLToken(
-            facilitatorKeypair,
-            payload.to as string,
-            tokenMintAddress,
-            BigInt(payload.value as string)
-          );
+          if (isNativeTransfer) {
+            // Transfer ETH (native token)
+            transactionHash = await baseService.transferETH(
+              payload.to as string,
+              BigInt(payload.value as string)
+            );
+          } else {
+            // Transfer ERC-20 Token (USDC, USDT, etc.)
+            const tokenAddress = getTokenContractAddress(
+              paymentRequirements.asset as string,
+              paymentPayload.network as "base-mainnet" | "base-sepolia"
+            );
+
+            if (!tokenAddress) {
+              const response: SettleResponse = {
+                isValid: false,
+                error: `Unsupported asset: ${paymentRequirements.asset}`,
+              };
+              return res.json(response);
+            }
+
+            transactionHash = await baseService.transferERC20(
+              payload.to as string,
+              tokenAddress,
+              BigInt(payload.value as string)
+            );
+          }
         }
 
         const response: SettleResponse = {
@@ -416,6 +503,18 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
           rpcUrl: "https://api.devnet.solana.com",
           explorerUrl: "https://explorer.solana.com?cluster=devnet",
         },
+        {
+          network: "base-mainnet",
+          chainId: 8453,
+          rpcUrl: "https://mainnet.base.org",
+          explorerUrl: "https://basescan.org",
+        },
+        {
+          network: "base-sepolia",
+          chainId: 84532,
+          rpcUrl: "https://sepolia.base.org",
+          explorerUrl: "https://sepolia.basescan.org",
+        },
       ],
       paymentSchemes: ["exact"],
       assets: [
@@ -454,12 +553,48 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
           decimals: 6,
           network: "solana-devnet",
         },
+        {
+          symbol: "ETH",
+          name: "Ethereum (Native Token)",
+          contractAddress: "0x0000000000000000000000000000000000000000",
+          decimals: 18,
+          network: "base-mainnet",
+        },
+        {
+          symbol: "USDC",
+          name: "USD Coin",
+          contractAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+          decimals: 6,
+          network: "base-mainnet",
+        },
+        {
+          symbol: "USDT",
+          name: "Tether USD",
+          contractAddress: "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
+          decimals: 6,
+          network: "base-mainnet",
+        },
+        {
+          symbol: "ETH",
+          name: "Ethereum Sepolia (Native Token)",
+          contractAddress: "0x0000000000000000000000000000000000000000",
+          decimals: 18,
+          network: "base-sepolia",
+        },
+        {
+          symbol: "USDC",
+          name: "USD Coin Sepolia",
+          contractAddress: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+          decimals: 6,
+          network: "base-sepolia",
+        },
       ],
       capabilities: [
         "Verify Payments",
         "Settle Payments",
         "SPL Token Support",
-        "Multi-Network",
+        "ERC-20 Token Support",
+        "Multi-Chain (Solana + BASE)",
       ],
     };
 
