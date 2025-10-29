@@ -74,26 +74,34 @@ export const CODE_EXAMPLES: CodeExample[] = [
   {
     language: "javascript",
     label: "JavaScript",
-    code: `// Client-side: Automatic 402 payment handling
+    code: `// Client-side: Multi-chain 402 payment handling
 import { createRapid402Client } from '@rapid402/sdk/client';
 
-const rapid402 = createRapid402Client({
+// Solana client
+const solanaClient = createRapid402Client({
   facilitatorUrl: 'https://rapid402.com/api/v1',
   network: 'solana-mainnet',
-  wallet: myWalletAdapter,
+  wallet: mySolanaWallet,
   maxPaymentAmount: BigInt('1000000000') // 1 SOL max
 });
 
+// BASE client
+const baseClient = createRapid402Client({
+  facilitatorUrl: 'https://rapid402.com/api/v1',
+  network: 'base-mainnet',
+  wallet: myEthWallet,
+  maxPaymentAmount: BigInt('1000000000000000000') // 1 ETH max
+});
+
 // Automatically handles 402 payments!
-const response = await rapid402.fetch('/api/premium-data');
-const data = await response.json();
+const response = await solanaClient.fetch('/api/premium-data');
 
 // Server-side: Payment-gated API
 import { Rapid402PaymentHandler } from '@rapid402/sdk/server';
 
 const handler = new Rapid402PaymentHandler({
   facilitatorUrl: 'https://rapid402.com/api/v1',
-  network: 'solana-mainnet',
+  network: 'solana-mainnet', // or 'base-mainnet'
   treasuryAddress: process.env.TREASURY_WALLET
 });
 
@@ -170,22 +178,22 @@ curl -X POST https://rapid402.com/api/v1/settle \\
 export const CAPABILITIES: Capability[] = [
   {
     title: "Cryptographic Verification",
-    description: "Verify payment payloads with cryptographic signatures before settlement. Ensure authenticity and prevent fraud.",
+    description: "Verify payment payloads with Ed25519 (Solana) and ECDSA (BASE) signatures before settlement. Ensure authenticity and prevent fraud.",
     icon: "shield-check",
   },
   {
-    title: "On-Chain Settlement",
-    description: "Settle payments directly on Solana with ultra-low fees and high throughput. Leverage Solana's speed and efficiency.",
+    title: "Multi-Chain Settlement",
+    description: "Settle payments on Solana and BASE with low fees and fast finality. Support for SOL, ETH, and stablecoins on both chains.",
     icon: "database",
   },
   {
     title: "Multi-Network Support",
-    description: "Support for Solana mainnet and devnet with extensible architecture for additional networks.",
+    description: "Support for Solana mainnet/devnet and BASE mainnet/Sepolia testnet with extensible architecture.",
     icon: "network",
   },
   {
-    title: "SPL Token Compatible",
-    description: "Full support for SPL Token standard for seamless token transfers on Solana.",
+    title: "Token Compatible",
+    description: "Full support for SPL tokens on Solana and ERC-20 tokens on BASE for seamless cross-chain transfers.",
     icon: "code",
   },
   {
@@ -195,7 +203,7 @@ export const CAPABILITIES: Capability[] = [
   },
   {
     title: "AI Agent Ready",
-    description: "Enable AI agents to autonomously search, purchase, and pay with standardized payment protocol.",
+    description: "Enable AI agents to autonomously search, purchase, and pay with standardized payment protocol across multiple chains.",
     icon: "cpu",
   },
 ];

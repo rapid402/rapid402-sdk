@@ -69,6 +69,49 @@ export class BaseService {
         };
       }
 
+      // Construct the message that was signed
+      // CRITICAL: This message format must match exactly what the SDK uses
+      // Format: from|to|value|validAfter|validBefore|nonce
+      // Defaults MUST be:
+      //   - validAfter: '0' if not provided
+      //   - validBefore: '999999999999' if not provided  
+      //   - nonce: '0x0' if not provided
+      // Any deviation will cause signature verification to fail
+      const message = [
+        payload.from,
+        payload.to,
+        payload.value,
+        payload.validAfter || '0',
+        payload.validBefore || '999999999999',
+        payload.nonce || '0x0'
+      ].join('|');
+
+      // Reconstruct signature from v, r, s
+      // Handle v as either decimal (27/28) or hex (0x1b/0x1c)
+      let vValue: number;
+      if (typeof payload.v === 'string' && payload.v.startsWith('0x')) {
+        vValue = parseInt(payload.v, 16);
+      } else {
+        vValue = typeof payload.v === 'number' ? payload.v : parseInt(payload.v, 10);
+      }
+
+      const signature = ethers.Signature.from({
+        v: vValue,
+        r: payload.r,
+        s: payload.s,
+      });
+
+      // Recover the signer address from the signature
+      const recoveredAddress = ethers.verifyMessage(message, signature.serialized);
+
+      // Verify the recovered address matches the claimed sender
+      if (recoveredAddress.toLowerCase() !== payload.from.toLowerCase()) {
+        return {
+          isValid: false,
+          error: "Signature verification failed - signer does not match from address",
+        };
+      }
+
       return {
         isValid: true,
         payer: payload.from,

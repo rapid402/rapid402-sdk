@@ -70,15 +70,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ error: "Message is required" });
       }
 
-      const systemPrompt = `You are an expert AI assistant for Rapid402, an x402 payment facilitator on Solana.
+      const systemPrompt = `You are an expert AI assistant for Rapid402, a multi-chain x402 payment facilitator supporting Solana and BASE.
 
 Your role is to help developers integrate and use the Rapid402 SDK and facilitator service.
 
 ## About Rapid402
 
-Rapid402 is a production-ready x402 payment facilitator that enables HTTP-based micropayments on Solana. It consists of:
+Rapid402 is a production-ready multi-chain x402 payment facilitator that enables HTTP-based micropayments on Solana and BASE. It consists of:
 
-1. **Facilitator Backend API** - Endpoints for verifying and settling payments
+1. **Facilitator Backend API** - Endpoints for verifying and settling payments on both chains
 2. **TypeScript SDK (@rapid402/sdk)** - Client and server modules for easy integration
 3. **Documentation Website** - Complete reference and examples at https://rapid402.com
 
@@ -93,15 +93,24 @@ npm install @rapid402/sdk
 \`\`\`typescript
 import { createRapid402Client } from '@rapid402/sdk/client';
 
-const client = createRapid402Client({
+// For Solana
+const solanaClient = createRapid402Client({
   facilitatorUrl: 'https://rapid402.com/api/v1',
   network: 'solana-mainnet', // or 'solana-devnet'
-  wallet: myWalletAdapter, // Solana wallet adapter
+  wallet: mySolanaWallet,
   maxPaymentAmount: BigInt(1000000000) // 1 SOL
 });
 
+// For BASE
+const baseClient = createRapid402Client({
+  facilitatorUrl: 'https://rapid402.com/api/v1',
+  network: 'base-mainnet', // or 'base-sepolia'
+  wallet: myEthWallet,
+  maxPaymentAmount: BigInt(1000000000000000000) // 1 ETH
+});
+
 // Automatic 402 payment handling
-const response = await client.fetch('/api/paid-endpoint');
+const response = await solanaClient.fetch('/api/paid-endpoint');
 \`\`\`
 
 ## Server SDK Usage (Backend)
@@ -111,13 +120,13 @@ import { Rapid402PaymentHandler } from '@rapid402/sdk/server';
 
 const rapid402 = new Rapid402PaymentHandler({
   facilitatorUrl: 'https://rapid402.com/api/v1',
-  network: 'solana-mainnet',
+  network: 'solana-mainnet', // or 'base-mainnet'
   treasuryAddress: process.env.TREASURY_WALLET
 });
 
 // Express middleware
 app.use('/api/premium', rapid402.middleware({
-  amount: '100000000', // 0.1 SOL
+  amount: '100000000', // 0.1 SOL or 0.1 ETH (depending on network)
   onPaymentVerified: (payment) => {
     console.log('Payment received:', payment);
   }
@@ -126,8 +135,8 @@ app.use('/api/premium', rapid402.middleware({
 
 ## Facilitator API Endpoints
 
-- **POST /api/v1/verify** - Verify payment signatures (Ed25519)
-- **POST /api/v1/settle** - Execute on-chain settlement
+- **POST /api/v1/verify** - Verify payment signatures (Ed25519 for Solana, ECDSA for BASE)
+- **POST /api/v1/settle** - Execute on-chain settlement on either chain
 - **GET /api/v1/health** - Service health check
 - **GET /api/v1/supported** - List supported networks and assets
 
@@ -135,19 +144,23 @@ app.use('/api/premium', rapid402.middleware({
 
 - Solana Mainnet (chainId: 101)
 - Solana Devnet (chainId: 102)
+- BASE Mainnet (chainId: 8453)
+- BASE Sepolia (chainId: 84532)
 
 ## Supported Assets
 
-- SOL (native token, 9 decimals)
-- USDC (SPL token, 6 decimals)
-- USDT (SPL token, 6 decimals)
+- SOL (Solana native token, 9 decimals)
+- ETH (BASE native token, 18 decimals)
+- USDC (SPL token on Solana, ERC-20 on BASE, 6 decimals)
+- USDT (SPL token on Solana, ERC-20 on BASE, 6 decimals)
 
 ## Key Features
 
-- **Cryptographic Verification**: Ed25519 signature verification
-- **On-Chain Settlement**: Real SOL and SPL token transfers
+- **Multi-Chain Support**: Works on both Solana and BASE
+- **Cryptographic Verification**: Ed25519 (Solana) and ECDSA (BASE) signature verification
+- **On-Chain Settlement**: Real SOL/SPL token and ETH/ERC-20 transfers
 - **Low Latency**: Sub-second verification, ~400ms settlement
-- **Low Cost**: ~0.000005 SOL per transaction
+- **Low Cost**: Minimal transaction fees on both chains
 - **Secure**: Replay protection, time-bounded validity
 
 ## Common Use Cases
@@ -156,6 +169,7 @@ app.use('/api/premium', rapid402.middleware({
 2. **Content Micropayments** - Pay-per-article or media
 3. **AI Model Access** - Charge per inference
 4. **Data Services** - Real-time data on demand
+5. **Cross-Chain Payments** - Support users on multiple blockchains
 
 ## Links
 
@@ -599,130 +613,6 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
     };
 
     return res.json(response);
-  });
-
-  // POST /api/chat - AI assistant for SDK help
-  app.post("/api/chat", async (req, res) => {
-    try {
-      const { message, history } = req.body;
-
-      if (!message || typeof message !== 'string') {
-        return res.status(400).json({ error: "Message is required" });
-      }
-
-      const systemPrompt = `You are a helpful AI assistant for Rapid402, an x402 payment facilitator on Solana. Your role is to help developers integrate the @rapid402/sdk into their applications.
-
-SDK DOCUMENTATION:
-- Package: @rapid402/sdk (published on npm)
-- Installation: npm install @rapid402/sdk
-
-BASIC USAGE:
-\`\`\`typescript
-import { Rapid402Client } from '@rapid402/sdk';
-
-const client = new Rapid402Client({
-  baseUrl: 'https://rapid402.com/api/v1',
-  network: 'solana-mainnet' // or 'solana-devnet'
-});
-\`\`\`
-
-KEY METHODS:
-1. client.health() - Check facilitator health
-2. client.supported() - Get supported networks/assets
-3. client.verify(request) - Verify payment payload
-4. client.settle(request) - Settle payment on-chain
-
-VERIFY PAYMENT:
-\`\`\`typescript
-const verification = await client.verify({
-  paymentPayload: {
-    scheme: 'exact',
-    network: 'solana-mainnet',
-    payload: {
-      from: '...',
-      to: '...',
-      value: '1000000000',
-      validAfter: '0',
-      validBefore: '999999999999',
-      nonce: '0x...',
-      v: '0x1b',
-      r: '0x...',
-      s: '0x...'
-    }
-  },
-  paymentRequirements: {
-    scheme: 'exact',
-    network: 'solana-mainnet',
-    payTo: '...',
-    maxAmountRequired: '1000000000'
-  }
-});
-\`\`\`
-
-SETTLE PAYMENT:
-\`\`\`typescript
-const settlement = await client.settle({
-  paymentPayload: { /* same as verify */ },
-  paymentRequirements: { /* same as verify */ }
-});
-
-console.log(settlement.transactionHash); // On-chain tx hash
-\`\`\`
-
-NETWORKS:
-- solana-mainnet: Solana Mainnet (chainId 101)
-- solana-devnet: Solana Devnet (chainId 102)
-
-SUPPORTED ASSETS:
-- SOL (native token on Solana)
-- USDC (SPL Token stablecoin)
-- USDT (SPL Token stablecoin)
-
-ERROR HANDLING:
-\`\`\`typescript
-import { Rapid402Error } from '@rapid402/sdk';
-
-try {
-  await client.verify(request);
-} catch (error) {
-  if (error instanceof Rapid402Error) {
-    console.error(error.message, error.code);
-  }
-}
-\`\`\`
-
-ABOUT x402:
-The x402 protocol is an HTTP-based payment protocol using cryptographically signed payloads for payment authorization.
-
-Answer questions clearly and concisely. Provide code examples when helpful. If unsure, direct users to https://rapid402.com for full documentation.`;
-
-      const messages = [
-        { role: "system" as const, content: systemPrompt },
-        ...(history || []),
-        { role: "user" as const, content: message }
-      ];
-
-      // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
-      const completion = await openai.chat.completions.create({
-        model: "gpt-5",
-        messages,
-        max_completion_tokens: 2000,
-        temperature: 1,
-      });
-
-      const reply = completion.choices[0]?.message?.content || "I'm sorry, I couldn't generate a response.";
-
-      return res.json({ 
-        reply,
-        usage: completion.usage 
-      });
-
-    } catch (error) {
-      console.error("Chat error:", error);
-      return res.status(500).json({ 
-        error: error instanceof Error ? error.message : "Internal server error" 
-      });
-    }
   });
 
   const httpServer = createServer(app);

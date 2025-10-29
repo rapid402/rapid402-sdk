@@ -1,10 +1,10 @@
 # Rapid402 - x402 Payment Facilitator & Documentation
 
 ## Overview
-Rapid402 is a complete x402 payment facilitator implementation with professional SDK documentation website. The x402 protocol is an HTTP-based payment protocol that enables developers to accept payments via cryptographically signed payloads. This project provides both the facilitator backend API and comprehensive documentation for integrating with it.
+Rapid402 is a complete multi-chain x402 payment facilitator implementation with professional SDK documentation website. The x402 protocol is an HTTP-based payment protocol that enables developers to accept payments via cryptographically signed payloads. This project provides both the facilitator backend API and comprehensive documentation for integrating with it.
 
 ## Project Purpose
-Rapid402 provides a working x402 payment facilitator service on Solana with:
+Rapid402 provides a working x402 payment facilitator service supporting Solana and BASE chains with:
 1. **Facilitator Backend API**: Endpoints for verifying and settling payments on-chain
 2. **Documentation Website**: Complete reference for developers integrating with your facilitator
 3. **TypeScript SDK**: @rapid402/sdk package for easy integration
@@ -15,14 +15,14 @@ This gives you full control over your payment infrastructure without relying on 
 **Status**: Production Ready - SDK Published to npm ✅
 
 ### Backend Features (Facilitator API)
-- POST /api/v1/verify - Verify payment payloads with real Ed25519 signature verification
-- POST /api/v1/settle - Execute real on-chain SOL and SPL token transfers
-- GET /api/v1/health - Health check with live Solana blockchain data
+- POST /api/v1/verify - Verify payment payloads with Ed25519 (Solana) and ECDSA (BASE) signature verification
+- POST /api/v1/settle - Execute real on-chain transfers (SOL/SPL tokens on Solana, ETH/ERC-20 on BASE)
+- GET /api/v1/health - Health check with live blockchain data
 - GET /api/v1/supported - List supported networks and assets
-- Real Solana address validation
-- Ed25519 cryptographic signature verification
-- On-chain settlement execution (SOL and SPL tokens)
-- Solana mainnet and devnet support
+- Multi-chain address validation (Solana + Ethereum addresses)
+- Ed25519 and ECDSA cryptographic signature verification
+- On-chain settlement execution (Solana SPL tokens and BASE ERC-20 tokens)
+- Network support: Solana mainnet/devnet, BASE mainnet/Sepolia testnet
 
 ### Frontend Features (Documentation)
 - Professional landing page with hero section and code preview
@@ -40,7 +40,16 @@ This gives you full control over your payment infrastructure without relying on 
 ## Recent Changes
 **Date**: 2025-10-29
 
-### Phase 4: Solana Blockchain Integration (Latest - Production Ready) ✅
+### Phase 5: Multi-Chain Support - BASE Integration (Latest) ✅
+- **BASE Chain Support**: Added full BASE mainnet and Sepolia testnet support
+- **BaseService**: Created EVM-compatible service with ECDSA signature verification
+- **Multi-Chain Verification**: Routes now handle both Solana (Ed25519) and BASE (ECDSA) signatures
+- **Multi-Chain Settlement**: Support for ETH native transfers and ERC-20 tokens (USDC, USDT)
+- **Updated Documentation**: All docs now reflect multi-chain support (Solana + BASE)
+- **Network Support**: BASE mainnet (chainId 8453) and Sepolia (chainId 84532)
+- **Asset Support**: ETH (18 decimals), USDC/USDT (6 decimals ERC-20 tokens)
+
+### Phase 4: Solana Blockchain Integration (Production Ready) ✅
 - **Real Solana Integration**: Implemented SolanaService with Ed25519 signature verification
 - **On-Chain Settlements**: Real SOL and SPL token transfers using @solana/web3.js
 - **Live Blockchain Data**: Health endpoint shows real Solana mainnet block height (354M+)
@@ -110,14 +119,18 @@ client/src/
 ```
 server/
 ├── routes.ts           # x402 Facilitator API routes
-│                       # - POST /api/v1/verify
-│                       # - POST /api/v1/settle
+│                       # - POST /api/v1/verify (multi-chain)
+│                       # - POST /api/v1/settle (multi-chain)
 │                       # - GET /api/v1/health
 │                       # - GET /api/v1/supported
 ├── solana-service.ts   # Solana blockchain integration
 │                       # - Ed25519 signature verification
 │                       # - SOL and SPL token transfers
 │                       # - Real blockchain interactions
+├── base-service.ts     # BASE blockchain integration
+│                       # - ECDSA signature verification
+│                       # - ETH and ERC-20 token transfers
+│                       # - Real blockchain interactions via ethers.js
 └── storage.ts          # Storage interface (available for future use)
 ```
 
@@ -135,9 +148,9 @@ server/
 
 3. **Technical Specifications**
    - Base URL: https://rapid402.com/api/v1
-   - Networks: Solana mainnet (chainId 101), Solana devnet (chainId 102)
+   - Networks: Solana mainnet/devnet, BASE mainnet/Sepolia
    - Payment schemes: exact
-   - Assets: SOL, USDC, USDT (SPL Token compatible)
+   - Assets: SOL, ETH, USDC, USDT (SPL Token + ERC-20 compatible)
 
 4. **Design System**
    - Color scheme: Solana purple primary (HSL 270° 91% 65%)
@@ -157,7 +170,7 @@ server/
 - **UI Framework**: Shadcn UI, Tailwind CSS
 - **Icons**: Lucide React
 - **Backend**: Express.js, Node.js
-- **Blockchain**: @solana/web3.js, @solana/spl-token
+- **Blockchain**: @solana/web3.js, @solana/spl-token, ethers.js (for BASE/EVM)
 - **Build Tool**: Vite
 
 ## Running the Project
@@ -170,11 +183,13 @@ The application runs on a single port with Vite serving the frontend and Express
 ✅ **PRODUCTION READY** - All core features implemented and tested
 
 ### Completed
+- ✅ Multi-chain support (Solana + BASE) with proper signature verification
 - ✅ Real Solana blockchain integration with Ed25519 signature verification
-- ✅ On-chain settlement execution for SOL and SPL tokens
-- ✅ Production secrets configured (FACILITATOR_PRIVATE_KEY, SOLANA_RPC_URL, SOLANA_DEVNET_RPC_URL)
+- ✅ Real BASE blockchain integration with ECDSA signature verification
+- ✅ On-chain settlement execution for SOL/SPL tokens and ETH/ERC-20 tokens
+- ✅ Production secrets configured for both chains
 - ✅ Live blockchain data in health endpoint
-- ✅ SDK published to npm (@rapid402/sdk)
+- ✅ SDK published to npm (@rapid402/sdk) - chain-agnostic
 - ✅ Complete documentation website
 - ✅ Solana purple branding throughout
 
@@ -186,10 +201,37 @@ The application runs on a single port with Vite serving the frontend and Express
 5. **Testing**: Comprehensive end-to-end testing of payment flows
 6. **Deployment**: Publish to production and configure custom domain (rapid402.com)
 
-## Environment Variables (Configured)
+## Environment Variables
+
+### Solana (Configured)
 ✅ `SOLANA_RPC_URL` - Solana mainnet RPC endpoint (configured)
 ✅ `SOLANA_DEVNET_RPC_URL` - Solana devnet RPC endpoint (configured)
-✅ `FACILITATOR_PRIVATE_KEY` - Keypair for signing settlement transactions (configured)
+✅ `FACILITATOR_PRIVATE_KEY` - Base64-encoded Solana keypair for settlement transactions (configured)
+
+### BASE (Required for BASE support)
+⚠️ `BASE_RPC_URL` - BASE mainnet RPC endpoint (e.g., https://mainnet.base.org or Alchemy/Infura URL)
+⚠️ `BASE_SEPOLIA_RPC_URL` - BASE Sepolia testnet RPC endpoint (e.g., https://sepolia.base.org)
+⚠️ `BASE_FACILITATOR_PRIVATE_KEY` - Ethereum private key (0x... format) for BASE settlement transactions
+
+**Note**: BASE settlement will return simulated transactions until BASE_FACILITATOR_PRIVATE_KEY is configured.
+
+## Critical Implementation Notes
+
+### BASE Signing Payload Format
+The BASE chain ECDSA signature verification requires an exact message format. The message must be constructed as:
+
+```
+from|to|value|validAfter|validBefore|nonce
+```
+
+With these exact defaults when fields are omitted:
+- `validAfter`: '0'
+- `validBefore`: '999999999999'
+- `nonce`: '0x0'
+
+**IMPORTANT**: The SDK (@rapid402/sdk) and server (`server/base-service.ts`) must use identical message construction logic. Any deviation in defaults, formatting, or field ordering will cause all BASE signatures to fail verification.
+
+**For SDK developers**: When implementing BASE support in the SDK, ensure the signing payload builder uses the exact same format and defaults as documented in `server/base-service.ts:75-84`.
 
 ## External Links
 - x402 Protocol: https://x402.org/
