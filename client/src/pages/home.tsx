@@ -1,4 +1,5 @@
 import { Hero } from "@/components/hero";
+import { Comparison } from "@/components/comparison";
 import { AboutSection } from "@/components/about-section";
 import { SpecificationsTable } from "@/components/specifications-table";
 import { ApiMethods } from "@/components/api-methods";
@@ -11,6 +12,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       <Hero />
+      <Comparison />
       <AboutSection />
       <SpecificationsTable />
       <ApiMethods />
