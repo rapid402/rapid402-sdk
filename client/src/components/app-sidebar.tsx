@@ -23,7 +23,7 @@ const menuItems = [
     items: [
       { title: "Introduction", url: "/", icon: Home },
       { title: "Quick Start", url: "/quick-start", icon: Lightbulb },
-      { title: "vs PayAI", url: "/comparison", icon: Scale },
+      { title: "Comparison", url: "/comparison", icon: Scale },
     ],
   },
   {
