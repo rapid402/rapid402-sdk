@@ -127,3 +127,34 @@ export const capabilitySchema = z.object({
 });
 
 export type Capability = z.infer<typeof capabilitySchema>;
+
+// Payment Request Types for QR Code Generation
+export const paymentRequestSchema = z.object({
+  id: z.string(),
+  amount: z.string(),
+  asset: z.string(),
+  network: z.string(),
+  recipientAddress: z.string(),
+  description: z.string().optional(),
+  createdAt: z.string(),
+  expiresAt: z.string().optional(),
+  status: z.enum(["pending", "completed", "expired"]).default("pending"),
+});
+
+export type PaymentRequest = z.infer<typeof paymentRequestSchema>;
+
+export const insertPaymentRequestSchema = paymentRequestSchema.omit({ id: true, createdAt: true, status: true });
+
+export type InsertPaymentRequest = z.infer<typeof insertPaymentRequestSchema>;
+
+// User types (for authentication if needed)
+export const userSchema = z.object({
+  id: z.string(),
+  username: z.string(),
+});
+
+export type User = z.infer<typeof userSchema>;
+
+export const insertUserSchema = userSchema.omit({ id: true });
+
+export type InsertUser = z.infer<typeof insertUserSchema>;

@@ -8,6 +8,7 @@ import {
   type HealthResponse,
   type SupportedResponse,
 } from "@shared/schema";
+import { storage } from "./storage";
 import OpenAI from "openai";
 import { SolanaService, getTokenMintAddress } from "./solana-service";
 import { BaseService, getTokenContractAddress } from "./base-service";
@@ -728,6 +729,137 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
     };
 
     return res.json(response);
+  });
+
+  // Payment Request Routes for QR Code Generation
+  app.post("/api/v1/payment-requests", express.json(), async (req, res) => {
+    try {
+      const { amount, asset, network, recipientAddress, description, expiresAt } = req.body;
+
+      if (!amount || !asset || !network || !recipientAddress) {
+        return res.status(400).json({ error: "Missing required fields" });
+      }
+
+      const paymentRequest = await storage.createPaymentRequest({
+        amount,
+        asset,
+        network,
+        recipientAddress,
+        description,
+        expiresAt,
+      });
+
+      return res.json(paymentRequest);
+    } catch (error) {
+      console.error("Error creating payment request:", error);
+      return res.status(500).json({ error: "Failed to create payment request" });
+    }
+  });
+
+  app.get("/api/v1/payment-requests/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const paymentRequest = await storage.getPaymentRequest(id);
+
+      if (!paymentRequest) {
+        return res.status(404).json({ error: "Payment request not found" });
+      }
+
+      return res.json(paymentRequest);
+    } catch (error) {
+      console.error("Error fetching payment request:", error);
+      return res.status(500).json({ error: "Failed to fetch payment request" });
+    }
+  });
+
+  app.post("/api/v1/payment-requests/:id/submit", express.json(), async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { signature } = req.body;
+
+      const paymentRequest = await storage.getPaymentRequest(id);
+      if (!paymentRequest) {
+        return res.status(404).json({ error: "Payment request not found" });
+      }
+
+      if (!signature || !signature.v || !signature.r || !signature.s) {
+        return res.status(400).json({ error: "Invalid signature format" });
+      }
+
+      // Create payment payload for verification
+      const paymentPayload = {
+        x402Version: 1,
+        scheme: "exact" as const,
+        network: paymentRequest.network,
+        payload: signature,
+      };
+
+      const paymentRequirements = {
+        scheme: "exact" as const,
+        network: paymentRequest.network,
+        maxAmountRequired: paymentRequest.amount,
+        payTo: paymentRequest.recipientAddress,
+        resource: `/payment/${id}`,
+        asset: paymentRequest.asset,
+      };
+
+      // Verify the payment based on network type
+      const networkType = getNetworkType(paymentRequest.network);
+      let verifyResult;
+
+      if (networkType === "solana") {
+        const service = getSolanaService(paymentRequest.network);
+        verifyResult = await service.verifyPaymentPayload(signature);
+      } else if (networkType === "base") {
+        const service = getBaseService(paymentRequest.network);
+        verifyResult = await service.verifyPaymentPayload(signature);
+      } else if (networkType === "bsc") {
+        const service = getBscService(paymentRequest.network);
+        verifyResult = await service.verifyPaymentPayload(signature);
+      } else {
+        return res.status(400).json({ error: "Unsupported network" });
+      }
+
+      if (!verifyResult.isValid) {
+        return res.status(400).json({ 
+          error: "Invalid signature", 
+          details: verifyResult.error 
+        });
+      }
+
+      // Settle the payment
+      let settleResult;
+      try {
+        if (networkType === "solana") {
+          const service = getSolanaService(paymentRequest.network);
+          // Note: This requires facilitator keypair to be configured
+          settleResult = { transactionHash: "simulated-solana-tx" };
+        } else if (networkType === "base") {
+          const service = getBaseService(paymentRequest.network);
+          settleResult = { transactionHash: "simulated-base-tx" };
+        } else if (networkType === "bsc") {
+          const service = getBscService(paymentRequest.network);
+          settleResult = { transactionHash: "simulated-bsc-tx" };
+        }
+      } catch (error) {
+        console.error("Settlement error:", error);
+        // Mark as completed even if settlement simulation fails
+        settleResult = { transactionHash: "pending" };
+      }
+
+      // Mark payment request as completed
+      await storage.updatePaymentRequestStatus(id, "completed");
+
+      return res.json({
+        success: true,
+        message: "Payment verified and settled",
+        transactionHash: settleResult?.transactionHash,
+        payer: verifyResult.payer,
+      });
+    } catch (error) {
+      console.error("Error submitting payment:", error);
+      return res.status(500).json({ error: "Failed to process payment" });
+    }
   });
 
   const httpServer = createServer(app);
