@@ -218,20 +218,31 @@ The application runs on a single port with Vite serving the frontend and Express
 ## Critical Implementation Notes
 
 ### BASE Signing Payload Format
-The BASE chain ECDSA signature verification requires an exact message format. The message must be constructed as:
+The BASE chain ECDSA signature verification requires an exact message format. The canonical implementation is defined in `server/signing-utils.ts` in the `constructBaseSigningMessage()` function.
 
-```
-from|to|value|validAfter|validBefore|nonce
-```
+Message format: `from|to|value|validAfter|validBefore|nonce`
 
-With these exact defaults when fields are omitted:
+Defaults when fields are omitted:
 - `validAfter`: '0'
 - `validBefore`: '999999999999'
 - `nonce`: '0x0'
 
-**IMPORTANT**: The SDK (@rapid402/sdk) and server (`server/base-service.ts`) must use identical message construction logic. Any deviation in defaults, formatting, or field ordering will cause all BASE signatures to fail verification.
+**IMPORTANT**: The SDK (@rapid402/sdk) and server must use identical message construction logic. Any deviation in defaults, formatting, or field ordering will cause all BASE signatures to fail verification.
 
-**For SDK developers**: When implementing BASE support in the SDK, ensure the signing payload builder uses the exact same format and defaults as documented in `server/base-service.ts:75-84`.
+**For SDK developers**: The canonical signing helper is now available in the SDK package itself:
+
+```typescript
+import { constructBaseSigningMessage } from '@rapid402/sdk';
+
+const message = constructBaseSigningMessage({
+  from: senderAddress,
+  to: receiverAddress,
+  value: amountInWei,
+  // Optional fields with automatic defaults
+});
+```
+
+The shared utility is defined in `shared/signing-utils.ts` and imported by both the server (`server/base-service.ts`) and SDK (`shared/sdk/src/index.ts`), ensuring identical message construction logic across both implementations.
 
 ## External Links
 - x402 Protocol: https://x402.org/

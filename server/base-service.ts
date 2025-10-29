@@ -1,4 +1,5 @@
 import { ethers } from "ethers";
+import { constructBaseSigningMessage } from "../shared/signing-utils";
 
 export interface BaseConfig {
   rpcUrl: string;
@@ -69,22 +70,10 @@ export class BaseService {
         };
       }
 
-      // Construct the message that was signed
-      // CRITICAL: This message format must match exactly what the SDK uses
-      // Format: from|to|value|validAfter|validBefore|nonce
-      // Defaults MUST be:
-      //   - validAfter: '0' if not provided
-      //   - validBefore: '999999999999' if not provided  
-      //   - nonce: '0x0' if not provided
-      // Any deviation will cause signature verification to fail
-      const message = [
-        payload.from,
-        payload.to,
-        payload.value,
-        payload.validAfter || '0',
-        payload.validBefore || '999999999999',
-        payload.nonce || '0x0'
-      ].join('|');
+      // Construct the message that was signed using canonical helper
+      // This helper is the single source of truth for message format
+      // SDK developers must use identical logic (see server/signing-utils.ts)
+      const message = constructBaseSigningMessage(payload);
 
       // Reconstruct signature from v, r, s
       // Handle v as either decimal (27/28) or hex (0x1b/0x1c)
