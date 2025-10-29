@@ -136,7 +136,7 @@ export function Footer() {
         <div className="border-t py-6">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <p className="text-sm text-muted-foreground">
-              © 2025 x402 Protocol. Open source under MIT License.
+              © 2025 Rapid402. Open source under MIT License.
             </p>
             <div className="flex gap-6 text-sm text-muted-foreground">
               <a
