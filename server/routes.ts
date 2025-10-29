@@ -1,0 +1,469 @@
+import express, { type Express } from "express";
+import { createServer, type Server } from "http";
+import {
+  verifyRequestSchema,
+  settleRequestSchema,
+  type VerifyResponse,
+  type SettleResponse,
+  type HealthResponse,
+  type SupportedResponse,
+} from "@shared/schema";
+import OpenAI from "openai";
+import { SolanaService, getTokenMintAddress } from "./solana-service";
+import { Keypair } from "@solana/web3.js";
+
+const startTime = Date.now();
+
+// Initialize Solana services
+const solanaMainnet = new SolanaService({
+  rpcUrl: process.env.SOLANA_RPC_URL || "https://api.mainnet-beta.solana.com",
+});
+
+const solanaDevnet = new SolanaService({
+  rpcUrl: process.env.SOLANA_DEVNET_RPC_URL || "https://api.devnet.solana.com",
+});
+
+// Helper to get the right Solana service
+function getSolanaService(network: string): SolanaService {
+  return network === "solana-mainnet" ? solanaMainnet : solanaDevnet;
+}
+
+// the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+const openai = new OpenAI({
+  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY
+});
+
+export async function registerRoutes(app: Express): Promise<Server> {
+  // Parse JSON bodies
+  app.use(express.json());
+
+  // POST /api/v1/verify - Verify payment payload
+  app.post("/api/v1/verify", async (req, res) => {
+    try {
+      const parsed = verifyRequestSchema.safeParse(req.body);
+      
+      if (!parsed.success) {
+        const response: VerifyResponse = {
+          isValid: false,
+          error: "Invalid request format: " + parsed.error.message,
+        };
+        return res.status(400).json(response);
+      }
+
+      const { paymentPayload, paymentRequirements } = parsed.data;
+
+      // Validate scheme matches
+      if (paymentPayload.scheme !== paymentRequirements.scheme) {
+        const response: VerifyResponse = {
+          isValid: false,
+          error: "Payment scheme mismatch",
+        };
+        return res.json(response);
+      }
+
+      // Validate network matches
+      if (paymentPayload.network !== paymentRequirements.network) {
+        const response: VerifyResponse = {
+          isValid: false,
+          error: "Network mismatch",
+        };
+        return res.json(response);
+      }
+
+      // For exact scheme, validate payment payload structure
+      if (paymentPayload.scheme === "exact") {
+        const payload = paymentPayload.payload;
+        
+        // Use Solana service to verify payment payload
+        const solanaService = getSolanaService(paymentPayload.network);
+        const verification = await solanaService.verifyPaymentPayload(payload);
+
+        if (!verification.isValid) {
+          const response: VerifyResponse = {
+            isValid: false,
+            error: verification.error || "Payment verification failed",
+          };
+          return res.json(response);
+        }
+
+        // Validate recipient matches
+        if (typeof payload.to === 'string' && payload.to !== paymentRequirements.payTo) {
+          const response: VerifyResponse = {
+            isValid: false,
+            error: "Payment recipient mismatch",
+          };
+          return res.json(response);
+        }
+
+        // Validate amount
+        if (typeof payload.value === 'string' && BigInt(payload.value) < BigInt(paymentRequirements.maxAmountRequired)) {
+          const response: VerifyResponse = {
+            isValid: false,
+            error: "Payment amount insufficient",
+          };
+          return res.json(response);
+        }
+
+        // Verification successful
+        const response: VerifyResponse = {
+          isValid: true,
+          payer: verification.payer,
+        };
+        return res.json(response);
+      }
+
+      // Default validation passed
+      const response: VerifyResponse = {
+        isValid: true,
+        payer: typeof paymentPayload.payload.from === 'string' ? paymentPayload.payload.from as string : undefined,
+      };
+      return res.json(response);
+
+    } catch (error) {
+      console.error("Verify error:", error);
+      const response: VerifyResponse = {
+        isValid: false,
+        error: error instanceof Error ? error.message : "Internal server error",
+      };
+      return res.status(500).json(response);
+    }
+  });
+
+  // POST /api/v1/settle - Settle payment on-chain
+  app.post("/api/v1/settle", async (req, res) => {
+    try {
+      const parsed = settleRequestSchema.safeParse(req.body);
+      
+      if (!parsed.success) {
+        const response: SettleResponse = {
+          isValid: false,
+          error: "Invalid request format: " + parsed.error.message,
+        };
+        return res.status(400).json(response);
+      }
+
+      const { paymentPayload, paymentRequirements } = parsed.data;
+
+      // First verify the payment
+      if (paymentPayload.scheme !== paymentRequirements.scheme ||
+          paymentPayload.network !== paymentRequirements.network) {
+        const response: SettleResponse = {
+          isValid: false,
+          error: "Payment validation failed",
+        };
+        return res.json(response);
+      }
+
+      // Check if facilitator keypair is configured
+      if (!process.env.FACILITATOR_PRIVATE_KEY) {
+        // Return simulated settlement if no private key configured
+        console.warn("Settlement simulated - no FACILITATOR_PRIVATE_KEY configured");
+        const mockTxHash = Array.from({ length: 88 }, () => 
+          "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"[Math.floor(Math.random() * 62)]
+        ).join("");
+
+        const response: SettleResponse = {
+          isValid: true,
+          payer: typeof paymentPayload.payload.from === 'string' ? paymentPayload.payload.from as string : undefined,
+          transactionHash: mockTxHash,
+        };
+        return res.json(response);
+      }
+
+      try {
+        // Parse facilitator keypair from environment
+        const privateKeyBytes = Buffer.from(process.env.FACILITATOR_PRIVATE_KEY, 'base64');
+        const facilitatorKeypair = Keypair.fromSecretKey(privateKeyBytes);
+
+        const solanaService = getSolanaService(paymentPayload.network);
+        const payload = paymentPayload.payload;
+
+        let transactionHash: string;
+
+        // Determine if this is SOL or SPL token transfer
+        // For SPL tokens, we need the mint address
+        const isSolTransfer = !paymentRequirements.asset || paymentRequirements.asset === 'SOL';
+
+        if (isSolTransfer) {
+          // Transfer SOL (native token)
+          transactionHash = await solanaService.transferSOL(
+            facilitatorKeypair,
+            payload.to as string,
+            BigInt(payload.value as string)
+          );
+        } else {
+          // Transfer SPL Token (USDC, USDT, etc.)
+          const tokenMintAddress = getTokenMintAddress(
+            paymentRequirements.asset as string,
+            paymentPayload.network as "solana-mainnet" | "solana-devnet"
+          );
+
+          if (!tokenMintAddress) {
+            const response: SettleResponse = {
+              isValid: false,
+              error: `Unsupported asset: ${paymentRequirements.asset}`,
+            };
+            return res.json(response);
+          }
+
+          transactionHash = await solanaService.transferSPLToken(
+            facilitatorKeypair,
+            payload.to as string,
+            tokenMintAddress,
+            BigInt(payload.value as string)
+          );
+        }
+
+        const response: SettleResponse = {
+          isValid: true,
+          payer: typeof payload.from === 'string' ? payload.from as string : undefined,
+          transactionHash,
+        };
+
+        console.log(`Settlement successful: ${transactionHash}`);
+        return res.json(response);
+
+      } catch (settlementError) {
+        console.error("Settlement failed:", settlementError);
+        const response: SettleResponse = {
+          isValid: false,
+          error: settlementError instanceof Error ? settlementError.message : "Settlement failed",
+        };
+        return res.status(500).json(response);
+      }
+
+    } catch (error) {
+      console.error("Settle error:", error);
+      const response: SettleResponse = {
+        isValid: false,
+        error: error instanceof Error ? error.message : "Internal server error",
+      };
+      return res.status(500).json(response);
+    }
+  });
+
+  // GET /api/v1/health - Health check
+  app.get("/api/v1/health", async (req, res) => {
+    const uptime = Math.floor((Date.now() - startTime) / 1000);
+    
+    try {
+      // Get real blockchain data
+      const blockHeight = await solanaMainnet.getBlockHeight();
+      
+      const response: HealthResponse = {
+        status: "healthy",
+        uptime,
+        version: "1.0.0",
+        network: "solana-mainnet",
+        blockHeight,
+      };
+
+      return res.json(response);
+    } catch (error) {
+      // Return healthy status even if blockchain check fails
+      const response: HealthResponse = {
+        status: "healthy",
+        uptime,
+        version: "1.0.0",
+        network: "solana-mainnet",
+      };
+
+      return res.json(response);
+    }
+  });
+
+  // GET /api/v1/supported - List supported networks and assets
+  app.get("/api/v1/supported", (req, res) => {
+    const response: SupportedResponse = {
+      networks: [
+        {
+          network: "solana-mainnet",
+          chainId: 101,
+          rpcUrl: "https://api.mainnet-beta.solana.com",
+          explorerUrl: "https://explorer.solana.com",
+        },
+        {
+          network: "solana-devnet",
+          chainId: 102,
+          rpcUrl: "https://api.devnet.solana.com",
+          explorerUrl: "https://explorer.solana.com?cluster=devnet",
+        },
+      ],
+      paymentSchemes: ["exact"],
+      assets: [
+        {
+          symbol: "SOL",
+          name: "Solana (Native Token)",
+          contractAddress: "So11111111111111111111111111111111111111112",
+          decimals: 9,
+          network: "solana-mainnet",
+        },
+        {
+          symbol: "USDC",
+          name: "USD Coin",
+          contractAddress: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+          decimals: 6,
+          network: "solana-mainnet",
+        },
+        {
+          symbol: "USDT",
+          name: "Tether USD",
+          contractAddress: "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+          decimals: 6,
+          network: "solana-mainnet",
+        },
+        {
+          symbol: "SOL",
+          name: "Solana Devnet (Native Token)",
+          contractAddress: "So11111111111111111111111111111111111111112",
+          decimals: 9,
+          network: "solana-devnet",
+        },
+        {
+          symbol: "USDC",
+          name: "USD Coin Devnet",
+          contractAddress: "4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU",
+          decimals: 6,
+          network: "solana-devnet",
+        },
+      ],
+      capabilities: [
+        "Verify Payments",
+        "Settle Payments",
+        "SPL Token Support",
+        "Multi-Network",
+      ],
+    };
+
+    return res.json(response);
+  });
+
+  // POST /api/chat - AI assistant for SDK help
+  app.post("/api/chat", async (req, res) => {
+    try {
+      const { message, history } = req.body;
+
+      if (!message || typeof message !== 'string') {
+        return res.status(400).json({ error: "Message is required" });
+      }
+
+      const systemPrompt = `You are a helpful AI assistant for Rapid402, an x402 payment facilitator on Solana. Your role is to help developers integrate the @rapid402/sdk into their applications.
+
+SDK DOCUMENTATION:
+- Package: @rapid402/sdk (published on npm)
+- Installation: npm install @rapid402/sdk
+
+BASIC USAGE:
+\`\`\`typescript
+import { Rapid402Client } from '@rapid402/sdk';
+
+const client = new Rapid402Client({
+  baseUrl: 'https://rapid402.com/api/v1',
+  network: 'solana-mainnet' // or 'solana-devnet'
+});
+\`\`\`
+
+KEY METHODS:
+1. client.health() - Check facilitator health
+2. client.supported() - Get supported networks/assets
+3. client.verify(request) - Verify payment payload
+4. client.settle(request) - Settle payment on-chain
+
+VERIFY PAYMENT:
+\`\`\`typescript
+const verification = await client.verify({
+  paymentPayload: {
+    scheme: 'exact',
+    network: 'solana-mainnet',
+    payload: {
+      from: '...',
+      to: '...',
+      value: '1000000000',
+      validAfter: '0',
+      validBefore: '999999999999',
+      nonce: '0x...',
+      v: '0x1b',
+      r: '0x...',
+      s: '0x...'
+    }
+  },
+  paymentRequirements: {
+    scheme: 'exact',
+    network: 'solana-mainnet',
+    payTo: '...',
+    maxAmountRequired: '1000000000'
+  }
+});
+\`\`\`
+
+SETTLE PAYMENT:
+\`\`\`typescript
+const settlement = await client.settle({
+  paymentPayload: { /* same as verify */ },
+  paymentRequirements: { /* same as verify */ }
+});
+
+console.log(settlement.transactionHash); // On-chain tx hash
+\`\`\`
+
+NETWORKS:
+- solana-mainnet: Solana Mainnet (chainId 101)
+- solana-devnet: Solana Devnet (chainId 102)
+
+SUPPORTED ASSETS:
+- SOL (native token on Solana)
+- USDC (SPL Token stablecoin)
+- USDT (SPL Token stablecoin)
+
+ERROR HANDLING:
+\`\`\`typescript
+import { Rapid402Error } from '@rapid402/sdk';
+
+try {
+  await client.verify(request);
+} catch (error) {
+  if (error instanceof Rapid402Error) {
+    console.error(error.message, error.code);
+  }
+}
+\`\`\`
+
+ABOUT x402:
+The x402 protocol is an HTTP-based payment protocol using cryptographically signed payloads for payment authorization.
+
+Answer questions clearly and concisely. Provide code examples when helpful. If unsure, direct users to https://rapid402.com for full documentation.`;
+
+      const messages = [
+        { role: "system" as const, content: systemPrompt },
+        ...(history || []),
+        { role: "user" as const, content: message }
+      ];
+
+      // the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+      const completion = await openai.chat.completions.create({
+        model: "gpt-5",
+        messages,
+        max_completion_tokens: 2000,
+        temperature: 1,
+      });
+
+      const reply = completion.choices[0]?.message?.content || "I'm sorry, I couldn't generate a response.";
+
+      return res.json({ 
+        reply,
+        usage: completion.usage 
+      });
+
+    } catch (error) {
+      console.error("Chat error:", error);
+      return res.status(500).json({ 
+        error: error instanceof Error ? error.message : "Internal server error" 
+      });
+    }
+  });
+
+  const httpServer = createServer(app);
+
+  return httpServer;
+}

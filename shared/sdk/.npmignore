@@ -1,0 +1,14 @@
+# Source files
+*.ts
+!*.d.ts
+
+# Config files
+tsconfig.json
+
+# Development
+node_modules
+.DS_Store
+*.log
+
+# Keep only dist
+!dist/**/*

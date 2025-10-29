@@ -1,0 +1,229 @@
+[33md755f94[m[33m ([m[1;32mreplit-agent[m[33m)[m Improve sidebar navigation responsiveness and accessibility across the documentation website
+[33m5c24791[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Improve sidebar navigation responsiveness and accessibility across the documentation website
+[33m4d693a5[m Improve payment handling and error responses in the SDK
+[33m2105dc8[m Improve payment handling and error responses in the SDK
+[33m53344bb[m Update documentation website with new screenshot asset
+[33mac40d91[m Update documentation website with new screenshot asset
+[33m005840e[m Improve payment payload generation by using Node.js crypto
+[33m1f4d215[m Improve payment payload generation by using Node.js crypto
+[33m698ef4b[m Update screenshots for documentation to reflect latest UI changes
+[33m39f9100[m Update screenshots for documentation to reflect latest UI changes
+[33mbd089a7[m Update website author and branding elements
+[33md0e7bbc[m Update website author and branding elements
+[33m5711486[m Add Node.js compatibility for nonce generation in payment creation
+[33m3138adb[m Add Node.js compatibility for nonce generation in payment creation
+[33mb5f0c68[m Fix issue with example code display in documentation
+[33mac72964[m Fix issue with example code display in documentation
+[33m355ea0d[m Remove outdated backup files from the SDK source code
+[33m26936bc[m Remove outdated backup files from the SDK source code
+[33m95aebe1[m Update documentation screenshots to remove sensitive information
+[33m8e37867[m Update documentation screenshots to remove sensitive information
+[33mb878948[m Rapid402 SDK v1.0.0
+[33m7746ea3[m[33m ([m[1;31mgitsafe-backup/main[m[33m)[m Update project branding to reflect official company name
+[33m38375d3[m Update project branding to reflect official company name
+[33mec40a46[m Update project author name to Rapid402
+[33m8837fee[m Update project author name to Rapid402
+[33mee46ffb[m Update styling to better match the brand identity
+[33m419097b[m Update styling to better match the brand identity
+[33m923a741[m Update author information in SDK package configuration
+[33m5cdc4c9[m Update author information in SDK package configuration
+[33m8349f79[m Add visual asset for documentation examples
+[33m6af6584[m Add visual asset for documentation examples
+[33m1c4903a[m Add initial project setup and essential configuration files
+[33m0c3c611[m Add initial project setup and essential configuration files
+[33m5923e94[m Improve testing setup and configurations for the SDK
+[33mc3f6d19[m Improve testing setup and configurations for the SDK
+[33m0f5fcf9[m Update SDK client to improve testing and type definitions
+[33mbb18ba4[m Update SDK client to improve testing and type definitions
+[33m57239fc[m Add screenshots to illustrate current documentation page design
+[33m1f22f69[m Add screenshots to illustrate current documentation page design
+[33m1a4fe8f[m Update website title and favicon for brand consistency
+[33mb2b7527[m Update website title and favicon for brand consistency
+[33m47db0d4[m Update website title and favicon to reflect Solana integration
+[33m08a7e7a[m Update website title and favicon to reflect Solana integration
+[33m4bc2772[m Update website to refer to the x402 payment protocol
+[33m62e894a[m Update website to refer to the x402 payment protocol
+[33m717707a[m Update website screenshots to reflect recent changes
+[33m1b1999c[m Update website screenshots to reflect recent changes
+[33m5e8f107[m Improve documentation by adding examples for payment initiation
+[33m15e52dc[m Improve documentation by adding examples for payment initiation
+[33mdff269c[m Restored to 3fc9f702a7e96d8330ccdda419049ca1be138dbe
+[33m7e833c5[m Restored to '3fc9f702a7e96d8330ccdda419049ca1be138dbe'
+[33m6da0814[m Saved your changes before rolling back
+[33m8bd82af[m Saved your changes before rolling back
+[33m1fa80e5[m Update hero section to mention payment via x402
+[33m985168a[m Update hero section to mention payment via x402
+[33m2d2c5da[m Automate pushing only SDK files to a separate GitHub repository
+[33m3fc9f70[m Automate pushing only SDK files to a separate GitHub repository
+[33m6fad999[m Update attached assets to include new screenshots for documentation
+[33m2711f63[m Update attached assets to include new screenshots for documentation
+[33maf0053e[m Improve sidebar navigation for easier access to documentation sections
+[33m2936092[m Improve sidebar navigation for easier access to documentation sections
+[33m9aadef0[m Update contact email and add status link to navigation
+[33md8a18d4[m Update contact email and add status link to navigation
+[33m9dd0673[m Add privacy, terms, and status pages with footer navigation
+[33m7a6b273[m Add privacy, terms, and status pages with footer navigation
+[33m8ae2207[m Improve website's navigation and appearance with responsive sidebar and theme switcher
+[33mb5d1400[m Improve website's navigation and appearance with responsive sidebar and theme switcher
+[33m46c4021[m Add GitHub icon and link to header and footer for easier access
+[33mb9462b2[m Add GitHub icon and link to header and footer for easier access
+[33mf6873bc[m Add AI assistant as a support option on the SDK page
+[33m88c6281[m Add AI assistant as a support option on the SDK page
+[33mec5a203[m Add dedicated page for SDK documentation and live demo examples
+[33mbbef595[m Add dedicated page for SDK documentation and live demo examples
+[33me8745bd[m Update code examples for clearer SDK integration and API usage
+[33m55f77e1[m Update code examples for clearer SDK integration and API usage
+[33mde5b3ec[m Remove the SDK demo page and its associated routing
+[33m76cc2b7[m Remove the SDK demo page and its associated routing
+[33m31a63cf[m Update payment protocol documentation to include new transaction types
+[33me541670[m Update payment protocol documentation to include new transaction types
+[33md358546[m Add server-side payment handling and improve client-side functionality
+[33m8212ce5[m Add server-side payment handling and improve client-side functionality
+[33m23e7037[m Update SDK documentation to improve clarity and add examples
+[33m124952f[m Update SDK documentation to improve clarity and add examples
+[33md7de34f[m Add SDK for automatic x402 payment handling with client and server modules
+[33me40efbd[m Add SDK for automatic x402 payment handling with client and server modules
+[33mc91b3b7[m Update SDK configurations to match project standards
+[33mf4246ec[m Update SDK configurations to match project standards
+[33m21ffaff[m Update .gitignore with comprehensive patterns for builds and logs
+[33m6c712e3[m Update .gitignore with comprehensive patterns for builds and logs
+[33m29634de[m Add documentation for publishing setup and automate its upload
+[33m6b783bc[m Add documentation for publishing setup and automate its upload
+[33m6c3910c[m Update SDK to support Solana and add testing and build tools
+[33mcf1336c[m Update SDK to support Solana and add testing and build tools
+[33m065471d[m Add scripts to automate pushing SDK to GitHub
+[33mb968f91[m Add scripts to automate pushing SDK to GitHub
+[33mea06672[m Update project README with detailed feature descriptions and usage examples
+[33ma7a3a47[m Update project README with detailed feature descriptions and usage examples
+[33m797ff15[m Update website to display current product information accurately
+[33mdc1544f[m Update website to display current product information accurately
+[33mf0f195c[m Update website to improve the user experience and visual appeal
+[33m2369926[m Update website to improve the user experience and visual appeal
+[33mda693a5[m Update documentation to reflect latest Solana integration and branding changes
+[33mcf186d7[m Update documentation to reflect latest Solana integration and branding changes
+[33m7b7c786[m Update health check to include current block height information
+[33m6ec6a13[m Update health check to include current block height information
+[33me882a64[m Add documentation and examples for basic payment processing
+[33m4018270[m Add documentation and examples for basic payment processing
+[33maf39b52[m Integrate Solana payment verification and transfer capabilities
+[33m24ec2d1[m Integrate Solana payment verification and transfer capabilities
+[33m7247641[m Improve the user interface for a better developer experience
+[33md57ec24[m Improve the user interface for a better developer experience
+[33m37812a5[m Add a new module to manage user profile data
+[33mfdef65b[m Add a new module to manage user profile data
+[33m7e0ae72[m Add screenshots for documentation examples
+[33m6ffeea9[m Add screenshots for documentation examples
+[33ma6a66ca[m Restored to 0c0966e1c08eb0e04d0d3ad3f85925e9df853cc7
+[33mc048c92[m Restored to '0c0966e1c08eb0e04d0d3ad3f85925e9df853cc7'
+[33m5c4bd7b[m Saved your changes before rolling back
+[33m9ae3e4d[m Saved your changes before rolling back
+[33mf21e063[m Assistant checkpoint: Fix npm command and install dependencies
+[33md27b4ab[m Assistant checkpoint: Add Solana integration and configure preview
+[33mdfd794c[m Clean repository - SDK and facilitator API only
+[33m633ad18[m Set up the project structure and initial configuration for documentation
+[33md470ee6[m Set up the project structure and initial configuration for documentation
+[33m42b1cde[m Add documentation for the x402 payment facilitator and TypeScript SDK
+[33m4df6072[m Add documentation for the x402 payment facilitator and TypeScript SDK
+[33mcea6a6c[m Remove documentation website - SDK and facilitator API only
+[33m8511758[m Add essential components and structure for the documentation website
+[33mb567e78[m Add essential components and structure for the documentation website
+[33me62bc4a[m Remove documentation website - SDK and facilitator API only
+[33m578eb63[m Add visual documentation for onboarding and setup processes
+[33me81cb6a[m Add visual documentation for onboarding and setup processes
+[33ma210526[m Improve API documentation for payment transaction details
+[33mfcaad8e[m Improve API documentation for payment transaction details
+[33mba89056[m Improve quick start guide with wallet address setup instructions
+[33m32b78f0[m Improve quick start guide with wallet address setup instructions
+[33m3f16f52[m Add a default wallet address for receiving payments
+[33m10ec698[m Add a default wallet address for receiving payments
+[33m0aee1c1[m Remove unused asset file from the project
+[33m547b585[m Remove unused asset file from the project
+[33m1fdbe21[m Add a new screenshot showcasing the payment protocol interface
+[33m0c0966e[m Add a new screenshot showcasing the payment protocol interface
+[33m16243ff[m Update website favicon to use the official logo
+[33m6f735e8[m Update website favicon to use the official logo
+[33m1989f84[m Correct SDK installation command in FAQ section
+[33ma83bd93[m Correct SDK installation command in FAQ section
+[33m51eeb75[m Update website to use logo as favicon and adjust network details
+[33ma9e65a3[m Update website to use logo as favicon and adjust network details
+[33m158d7d5[m Set the website to start in dark mode by default
+[33m98b0cf3[m Set the website to start in dark mode by default
+[33mb98c674[m Set the default theme to dark mode for the documentation website
+[33m27f9254[m Set the default theme to dark mode for the documentation website
+[33m9b77a3d[m Improve code display and update API base URL for SDK demo
+[33mb661a1e[m Improve code display and update API base URL for SDK demo
+[33m2dee434[m Introduce AI assistant for Solana documentation
+[33m8751571[m Introduce AI assistant for Solana documentation
+[33m87fae91[m Update documentation and code examples to reflect Solana network integration
+[33m1a74e68[m Update documentation and code examples to reflect Solana network integration
+[33m9781504[m Update colors and documentation to reflect Solana integration
+[33ma8c6476[m Update colors and documentation to reflect Solana integration
+[33md18df7f[m Update the project to use Solana instead of BNB Chain colors and networks
+[33m549ca02[m Update the project to use Solana instead of BNB Chain colors and networks
+[33m7962b2c[m Update social media links in the footer to use the new X platform handle
+[33md3c5c07[m Update social media links in the footer to use the new X platform handle
+[33m3ae1e9e[m Update the website icon to feature the company logo
+[33mdc842ea[m Update the website icon to feature the company logo
+[33m82e2c74[m Add SDK for integrating the payment protocol into applications
+[33ma5fcbb4[m Add SDK for integrating the payment protocol into applications
+[33m896db92[m Add X (Twitter) link to the header navigation bar
+[33m8aa065e[m Add X (Twitter) link to the header navigation bar
+[33m19818d4[m Add social media links to the website footer
+[33m0797606[m Add social media links to the website footer
+[33m9aa831a[m Update color scheme to use BNB yellow and orange accents
+[33m122e89e[m Update color scheme to use BNB yellow and orange accents
+[33m183cf2a[m Update documentation to better explain the X402 facilitator on BNB via SDK
+[33m5a80a9d[m Update documentation to better explain the X402 facilitator on BNB via SDK
+[33me309218[m Increase the size of the logo displayed in the website header
+[33md5658da[m Increase the size of the logo displayed in the website header
+[33m0df66cd[m Update logo to a larger, transparent version for better visibility
+[33mc691dcb[m Update logo to a larger, transparent version for better visibility
+[33m2630132[m Update navigation bar to display the official logo
+[33m7312f34[m Update navigation bar to display the official logo
+[33mdf0b7f9[m Remove redundant navigation links from the header bar
+[33m8bcbd99[m Remove redundant navigation links from the header bar
+[33me8c8d3b[m Remove GitHub link from website header navigation
+[33med15f67[m Remove GitHub link from website header navigation
+[33m11b6d09[m Update examples to use BNB instead of USDC for payment verification
+[33m614a7be[m Update examples to use BNB instead of USDC for payment verification
+[33m4e3a3fa[m Add support for BNB, USDC, and USDT payment assets
+[33m9e389c6[m Add support for BNB, USDC, and USDT payment assets
+[33mb09133b[m Animate the chat assistant label to bounce and disappear after 5 seconds
+[33m2b34223[m Animate the chat assistant label to bounce and disappear after 5 seconds
+[33m9e3578c[m Adjust chat widget positioning and tooltip display
+[33mf27c9fe[m Adjust chat widget positioning and tooltip display
+[33m08b882b[m Add a popup to the chat widget that displays "Assistant"
+[33m04f8572[m Add a popup to the chat widget that displays "Assistant"
+[33mcfe3773[m Adjust chat widget position and alignment for better user experience
+[33ma4c4fe1[m Adjust chat widget position and alignment for better user experience
+[33m0b9d24e[m Improve chat widget accessibility by adjusting element layering
+[33med6ab67[m Improve chat widget accessibility by adjusting element layering
+[33macaedfe[m Add new images to the documentation website
+[33m0933794[m Add new images to the documentation website
+[33m71f6e20[m Add AI assistant for SDK documentation and integration help
+[33m48901e1[m Add AI assistant for SDK documentation and integration help
+[33m2abffd7[m Make the website more accessible and user-friendly
+[33mc8ccbbb[m Make the website more accessible and user-friendly
+[33ma03fc8d[m Update documentation to reflect SDK publication and production readiness
+[33m07bcc98[m Update documentation to reflect SDK publication and production readiness
+[33me085394[m Update SDK to correctly export client and types
+[33m7089787[m Update SDK to correctly export client and types
+[33md1986af[m Update SDK to use modern module system for broader compatibility
+[33mbd47d03[m Update SDK to use modern module system for broader compatibility
+[33m39dc3a9[m Add SDK for the x402 payment protocol
+[33m3570c7f[m Add SDK for the x402 payment protocol
+[33m66d2b2c[m Rename project and update documentation to reflect the new "Rapid402" name
+[33m2df7ead[m Rename project and update documentation to reflect the new "Rapid402" name
+[33m8756a4b[m Enhance SDK to support detailed payment verification and health checks
+[33m60ebba9[m Enhance SDK to support detailed payment verification and health checks
+[33mefc81a0[m Add a live demo page and update SDK to use new package name
+[33mc4a62cc[m Add a live demo page and update SDK to use new package name
+[33mb439204[m Update API URLs to the new rapid402.com domain
+[33md1f94ca[m Update API URLs to the new rapid402.com domain
+[33m2fb8274[m Enable users to create their own payment facilitators with integrated documentation
+[33m9f6632f[m Enable users to create their own payment facilitators with integrated documentation
+[33m1b07725[m Update navigation to allow users to create custom URLs
+[33md75cea7[m Update navigation to allow users to create custom URLs
+[33mf7618ef[m Add x402 SDK documentation website with API reference and guides
+[33m3c2fe1c[m Add x402 SDK documentation website with API reference and guides
+[33m8afaac5[m Initial commit

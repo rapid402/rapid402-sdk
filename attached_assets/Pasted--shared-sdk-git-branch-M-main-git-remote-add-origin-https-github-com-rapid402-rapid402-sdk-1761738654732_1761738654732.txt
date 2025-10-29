@@ -1,0 +1,49 @@
+~/.../shared/sdk$ git branch -M main
+
+git remote add origin https://github.com/rapid402/rapid402-sdk.git
+
+git push -f origin main
+error: remote origin already exists.
+Everything up-to-date
+~/.../shared/sdk$ git log --oneline --all
+
+git remote -v
+d755f94 (replit-agent) Improve sidebar navigation responsiveness and accessibility across the documentation website
+5c24791 (HEAD -> main, origin/main, origin/HEAD) Improve sidebar navigation responsiveness and accessibility across the documentation website
+4d693a5 Improve payment handling and error responses in the SDK
+2105dc8 Improve payment handling and error responses in the SDK
+53344bb Update documentation website with new screenshot asset
+ac40d91 Update documentation website with new screenshot asset
+005840e Improve payment payload generation by using Node.js crypto
+1f4d215 Improve payment payload generation by using Node.js crypto
+698ef4b Update screenshots for documentation to reflect latest UI changes
+39f9100 Update screenshots for documentation to reflect latest UI changes
+bd089a7 Update website author and branding elements
+d0e7bbc Update website author and branding elements
+5711486 Add Node.js compatibility for nonce generation in payment creation
+3138adb Add Node.js compatibility for nonce generation in payment creation
+b5f0c68 Fix issue with example code display in documentation
+ac72964 Fix issue with example code display in documentation
+355ea0d Remove outdated backup files from the SDK source code
+26936bc Remove outdated backup files from the SDK source code
+95aebe1 Update documentation screenshots to remove sensitive information
+8e37867 Update documentation screenshots to remove sensitive information
+b878948 Rapid402 SDK v1.0.0
+7746ea3 (gitsafe-backup/main) Update project branding to reflect official company name
+38375d3 Update project branding to reflect official company name
+ec40a46 Update project author name to Rapid402
+8837fee Update project author name to Rapid402
+ee46ffb Update styling to better match the brand identity
+419097b Update styling to better match the brand identity
+923a741 Update author information in SDK package configuration
+5cdc4c9 Update author information in SDK package configuration
+8349f79 Add visual asset for documentation examples
+6af6584 Add visual asset for documentation examples
+1c4903a Add initial project setup and essential configuration files
+0c3c611 Add initial project setup and essential configuration files
+5923e94 Improve testing setup and configurations for the SDK
+c3f6d19 Improve testing setup and configurations for the SDK
+0f5fcf9 Update SDK client to improve testing and type definitions
+bb18ba4 Update SDK client to improve testing and type definitions
+57239fc Add screenshots to illustrate current documentation page design
+:

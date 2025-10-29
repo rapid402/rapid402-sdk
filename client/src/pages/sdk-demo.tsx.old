@@ -1,0 +1,218 @@
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
+import { Rapid402Client, Rapid402Error } from "@shared/sdk";
+import type { VerifyPaymentResponse, HealthResponse, SupportedResponse } from "@shared/sdk";
+
+export default function SdkDemo() {
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Initialize the SDK client
+  const client = new Rapid402Client({
+    baseUrl: window.location.origin + '/api/v1',
+    network: 'solana-mainnet'
+  });
+
+  const testHealth = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const health: HealthResponse = await client.health();
+      setResult(health);
+    } catch (err) {
+      if (err instanceof Rapid402Error) {
+        setError(err.message);
+      } else {
+        setError('Unknown error occurred');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const testSupported = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const supported: SupportedResponse = await client.supported();
+      setResult(supported);
+    } catch (err) {
+      if (err instanceof Rapid402Error) {
+        setError(err.message);
+      } else {
+        setError('Unknown error occurred');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const testVerify = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const verification: VerifyPaymentResponse = await client.verify({
+        paymentPayload: {
+          scheme: 'exact',
+          network: 'solana-mainnet',
+          payload: {
+            from: '7UX2i7SucgLMQcfZ75s3VXmZZY4YRUyJN9X1RgfMoDUi',
+            to: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+            value: '100000000',
+            validAfter: '0',
+            validBefore: '9999999999',
+            nonce: '0x' + Math.random().toString(16).substring(2, 18),
+            v: '0x1b',
+            r: '0x' + '1'.repeat(64),
+            s: '0x' + '2'.repeat(64)
+          }
+        },
+        paymentRequirements: {
+          scheme: 'exact',
+          network: 'solana-mainnet',
+          payTo: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+          maxAmountRequired: '100000000'
+        }
+      });
+      setResult(verification);
+    } catch (err) {
+      if (err instanceof Rapid402Error) {
+        setError(err.message);
+      } else {
+        setError('Unknown error occurred');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="container mx-auto max-w-4xl px-6 md:px-8 py-12">
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold mb-4">SDK Demo</h1>
+        <p className="text-lg text-muted-foreground">
+          Live demonstration of the @rapid402/sdk TypeScript client
+        </p>
+      </div>
+
+      <div className="space-y-8">
+        <Card>
+          <CardHeader>
+            <CardTitle>SDK Initialization</CardTitle>
+            <CardDescription>
+              The SDK is initialized and ready to use on this page
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <code className="block p-4 bg-muted rounded-md font-mono text-sm whitespace-pre overflow-x-auto">
+{`import { Rapid402Client } from '@rapid402/sdk';
+
+const client = new Rapid402Client({
+  baseUrl: 'https://rapid402.com/api/v1',
+  network: 'solana-mainnet'
+});`}
+            </code>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Test API Endpoints</CardTitle>
+            <CardDescription>
+              Click the buttons below to test the SDK methods
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              <Button
+                onClick={testHealth}
+                disabled={loading}
+                data-testid="button-test-health"
+              >
+                Test Health Check
+              </Button>
+              <Button
+                onClick={testSupported}
+                disabled={loading}
+                variant="secondary"
+                data-testid="button-test-supported"
+              >
+                Test Supported
+              </Button>
+              <Button
+                onClick={testVerify}
+                disabled={loading}
+                variant="outline"
+                data-testid="button-test-verify"
+              >
+                Test Verify (Demo)
+              </Button>
+            </div>
+
+            {loading && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+                Making API request...
+              </div>
+            )}
+
+            {error && (
+              <div className="rounded-md bg-destructive/10 border border-destructive/20 p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge variant="destructive">Error</Badge>
+                </div>
+                <code className="text-sm text-destructive font-mono">{error}</code>
+              </div>
+            )}
+
+            {result && !error && (
+              <div className="rounded-md bg-primary/10 border border-primary/20 p-4">
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge>Success</Badge>
+                </div>
+                <code className="block text-sm font-mono whitespace-pre overflow-x-auto">
+                  {JSON.stringify(result, null, 2)}
+                </code>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>SDK Features</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2 text-sm">
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span><strong>TypeScript Support:</strong> Full type definitions for all methods and responses</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span><strong>Error Handling:</strong> Custom Rapid402Error class with detailed error information</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span><strong>Network Support:</strong> Configurable for Solana mainnet or devnet</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span><strong>Timeout Control:</strong> Configurable request timeout</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">✓</span>
+                <span><strong>API Key Support:</strong> Optional authentication via API key</span>
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
