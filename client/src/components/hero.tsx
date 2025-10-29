@@ -1,9 +1,33 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, BookOpen } from "lucide-react";
+import { ArrowRight, BookOpen, Copy, Check } from "lucide-react";
 import { Link } from "wouter";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 export function Hero() {
+  const [copied, setCopied] = useState(false);
+  const { toast } = useToast();
+  const tokenAddress = "533kvhZbuPX5VcQqvNr4isKESJQ5atMm8ZJuSTWKpump";
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(tokenAddress);
+      setCopied(true);
+      toast({
+        title: "Copied!",
+        description: "Token address copied to clipboard",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      toast({
+        title: "Failed to copy",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <section className="relative overflow-hidden min-h-[600px] flex items-center py-20 md:py-32">
       <div
@@ -19,10 +43,26 @@ export function Hero() {
       <div className="container mx-auto max-w-7xl px-6 md:px-8 relative z-10">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-16">
           <div className="flex flex-col justify-center">
-            <div className="mb-4 inline-flex">
-              <span className="rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary border border-primary/20">
-                x402 Payment Protocol
-              </span>
+            <div className="mb-4 flex flex-col gap-3">
+              <div className="inline-flex">
+                <span className="rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary border border-primary/20">
+                  x402 Payment Protocol
+                </span>
+              </div>
+              <div 
+                className="inline-flex items-center gap-2 bg-muted/50 border border-border rounded-lg px-3 py-2 hover-elevate cursor-pointer max-w-fit"
+                onClick={handleCopy}
+                data-testid="button-copy-token"
+              >
+                <span className="text-xs font-mono text-foreground">
+                  {tokenAddress}
+                </span>
+                {copied ? (
+                  <Check className="h-3.5 w-3.5 text-green-500" />
+                ) : (
+                  <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                )}
+              </div>
             </div>
             <h1 className="mb-6 text-5xl font-bold tracking-tight md:text-6xl">
               Accept Payments
