@@ -40,7 +40,15 @@ This gives you full control over your payment infrastructure without relying on 
 ## Recent Changes
 **Date**: 2025-10-29
 
-### Phase 5: Multi-Chain Support - BASE Integration (Latest) ✅
+### Phase 6: Comprehensive Testing Suite (Latest) ✅
+- **Vitest Integration**: Added Vitest for backend and API testing
+- **API Endpoint Tests**: Comprehensive tests for /verify, /settle, /health, /supported endpoints
+- **Signature Verification Tests**: Tests for Ed25519 (Solana) and ECDSA (BASE) cryptographic verification
+- **Service Layer Tests**: Unit tests for SolanaService and BaseService
+- **Multi-Chain Tests**: Cross-chain compatibility and address validation tests
+- **Test Coverage**: 100+ test cases covering all critical functionality
+
+### Phase 5: Multi-Chain Support - BASE Integration ✅
 - **BASE Chain Support**: Added full BASE mainnet and Sepolia testnet support
 - **BaseService**: Created EVM-compatible service with ECDSA signature verification
 - **Multi-Chain Verification**: Routes now handle both Solana (Ed25519) and BASE (ECDSA) signatures
@@ -179,6 +187,45 @@ npm run dev
 ```
 The application runs on a single port with Vite serving the frontend and Express handling the backend.
 
+## Testing
+
+### Test Suite Overview
+The project includes comprehensive tests covering:
+- **API Endpoint Tests**: Verify, settle, health, and supported endpoints
+- **Signature Verification Tests**: Ed25519 (Solana) and ECDSA (BASE) cryptographic verification
+- **Service Layer Tests**: SolanaService and BaseService functionality
+- **Multi-Chain Tests**: Cross-chain compatibility and address validation
+
+### Running Tests
+
+```bash
+# Run all tests once
+npx vitest run
+
+# Run tests in watch mode
+npx vitest watch
+
+# Run tests with UI
+npx vitest --ui
+
+# Run tests with coverage
+npx vitest run --coverage
+```
+
+### Test Files
+- `tests/api.test.ts` - API endpoint integration tests
+- `tests/signature-verification.test.ts` - Cryptographic signature verification tests
+- `tests/services.test.ts` - Service layer unit tests
+- `shared/sdk/tests/` - SDK tests (Jest-based)
+
+### SDK Tests
+The SDK has its own test suite using Jest:
+
+```bash
+cd shared/sdk
+npm test
+```
+
 ## Production Status
 ✅ **PRODUCTION READY** - All core features implemented and tested
 
@@ -198,8 +245,7 @@ The application runs on a single port with Vite serving the frontend and Express
 2. **Transaction Monitoring**: Add confirmation monitoring and retry logic
 3. **Rate Limiting**: Implement API rate limiting for abuse prevention
 4. **API Authentication**: Add API key authentication for access control
-5. **Testing**: Comprehensive end-to-end testing of payment flows
-6. **Deployment**: Publish to production and configure custom domain (rapid402.com)
+5. **Deployment**: Publish to production and configure custom domain (rapid402.com)
 
 ## Environment Variables
 
