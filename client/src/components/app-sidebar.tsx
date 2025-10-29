@@ -13,7 +13,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Home, BookOpen, Code2, Lightbulb, HelpCircle, ChevronDown, Package } from "lucide-react";
+import { Home, BookOpen, Code2, Lightbulb, HelpCircle, ChevronDown, Package, Scale } from "lucide-react";
 import { Link, useLocation } from "wouter";
 import { useState } from "react";
 
@@ -23,6 +23,7 @@ const menuItems = [
     items: [
       { title: "Introduction", url: "/", icon: Home },
       { title: "Quick Start", url: "/quick-start", icon: Lightbulb },
+      { title: "vs PayAI", url: "/comparison", icon: Scale },
     ],
   },
   {

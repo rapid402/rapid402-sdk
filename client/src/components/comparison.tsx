@@ -17,35 +17,16 @@ interface FeatureCategory {
 
 const categories: FeatureCategory[] = [
   {
-    title: "Protocol Authenticity",
-    description: "True x402 implementation vs proprietary wrapper",
+    title: "Deployment Model",
+    description: "Self-hosted infrastructure vs managed service",
     icon: Shield,
     features: [
-      {
-        feature: "x402 Protocol Native",
-        rapid402: true,
-        payai: false,
-        explanation: "Built from the ground up following x402 spec, not a proprietary API disguised as x402",
-      },
-      {
-        feature: "Ed25519 Signature Verification",
-        rapid402: true,
-        payai: false,
-        explanation: "Cryptographically secure payment verification using x402 standard signatures",
-      },
       {
         feature: "Open Source",
         rapid402: true,
         payai: false,
-        explanation: "Full transparency - audit the code, contribute improvements, or fork for custom needs",
+        explanation: "Full code transparency - audit, modify, and contribute to the codebase",
       },
-    ],
-  },
-  {
-    title: "Operational Control",
-    description: "Own your infrastructure vs platform dependency",
-    icon: Lock,
-    features: [
       {
         feature: "Self-Hosted Option",
         rapid402: true,
@@ -53,72 +34,85 @@ const categories: FeatureCategory[] = [
         explanation: "Deploy on your own infrastructure for complete control and privacy",
       },
       {
-        feature: "Vendor Lock-in",
-        rapid402: false,
-        payai: true,
-        explanation: "No proprietary APIs - switch facilitators anytime without code changes",
+        feature: "Infrastructure Control",
+        rapid402: "Full ownership",
+        payai: "Managed service",
+        explanation: "Run your own facilitator vs relying on third-party hosted infrastructure",
       },
+    ],
+  },
+  {
+    title: "Data & Privacy",
+    description: "Who owns and controls your payment data",
+    icon: Lock,
+    features: [
       {
         feature: "Data Privacy",
         rapid402: "Complete control",
         payai: "Shared with platform",
-        explanation: "Your payment data stays on your servers, never shared with third parties",
+        explanation: "Your payment data stays on your servers, you control access and retention",
       },
       {
-        feature: "Custom Integration",
-        rapid402: "Full control",
-        payai: "Limited",
-        explanation: "Customize settlement logic, add business rules, integrate with any system",
+        feature: "Vendor Lock-in",
+        rapid402: false,
+        payai: true,
+        explanation: "Own the code and infrastructure - migrate or customize without restrictions",
+      },
+      {
+        feature: "Compliance Control",
+        rapid402: "Self-managed",
+        payai: "Platform-managed",
+        explanation: "Implement your own compliance rules and data handling policies",
       },
     ],
   },
   {
-    title: "Performance & Reliability",
-    description: "Optimized for speed and Solana's architecture",
-    icon: Zap,
-    features: [
-      {
-        feature: "API Response Time",
-        rapid402: "< 100ms",
-        payai: "Variable",
-        explanation: "Optimized direct Solana integration ensures consistently fast verification",
-      },
-      {
-        feature: "Solana Integration",
-        rapid402: "Native & Optimized",
-        payai: "Limited",
-        explanation: "Built specifically for Solana - supports mainnet, devnet, and all SPL tokens",
-      },
-      {
-        feature: "SPL Token Support",
-        rapid402: true,
-        payai: "Limited",
-        explanation: "Accept any SPL token (USDC, USDT, etc.) with native token account handling",
-      },
-    ],
-  },
-  {
-    title: "Cost & Developer Experience",
-    description: "Lower costs and faster time to market",
+    title: "Customization & Integration",
+    description: "Flexibility to build exactly what you need",
     icon: Code,
     features: [
       {
-        feature: "Transaction Fees",
+        feature: "Custom Settlement Logic",
+        rapid402: "Full control",
+        payai: "Standard only",
+        explanation: "Customize payment flows, add business rules, implement custom settlement patterns",
+      },
+      {
+        feature: "Database Integration",
+        rapid402: "Direct access",
+        payai: "API only",
+        explanation: "Direct database access for custom reporting, analytics, and integrations",
+      },
+      {
+        feature: "Source Code Access",
+        rapid402: true,
+        payai: false,
+        explanation: "Modify the facilitator to fit your exact requirements",
+      },
+    ],
+  },
+  {
+    title: "Cost Structure",
+    description: "Transparent costs vs potential future pricing changes",
+    icon: Zap,
+    features: [
+      {
+        feature: "Platform Fees",
+        rapid402: "None (self-hosted)",
+        payai: "None (currently)",
+        explanation: "Self-hosting eliminates platform fees entirely vs potential future pricing models",
+      },
+      {
+        feature: "Cost Predictability",
         rapid402: "Network fees only",
-        payai: "Platform fees + network",
-        explanation: "No platform fees, no revenue sharing - you keep 100% of your payments",
+        payai: "Subject to change",
+        explanation: "Control your own costs vs dependency on third-party pricing decisions",
       },
       {
-        feature: "Setup Time",
-        rapid402: "< 5 minutes",
-        payai: "Account approval required",
-        explanation: "npm install and go - no waiting for account approval or KYC",
-      },
-      {
-        feature: "TypeScript SDK",
-        rapid402: "Full-featured",
-        payai: "Basic",
-        explanation: "Complete SDK with client wallet integration and server verification helpers",
+        feature: "Infrastructure Costs",
+        rapid402: "Your hosting",
+        payai: "Included",
+        explanation: "You pay your own infrastructure costs vs relying on free tier sustainability",
       },
     ],
   },
@@ -233,12 +227,13 @@ export function Comparison() {
           <Card className="inline-block px-8 py-6 max-w-2xl">
             <h3 className="text-xl font-semibold mb-2 text-foreground">The Bottom Line</h3>
             <p className="text-muted-foreground">
-              PayAI wraps proprietary APIs in x402-like syntax. Rapid402 <span className="font-semibold text-foreground">IS</span> x402 - 
-              built on the protocol standard with full transparency, zero lock-in, and complete developer control.
+              Both are legitimate x402 facilitators. PayAI offers managed hosting (like Stripe). 
+              Rapid402 gives you <span className="font-semibold text-foreground">complete ownership</span> - 
+              self-host the open-source code, control your data, and customize everything.
             </p>
           </Card>
           <p className="text-sm text-muted-foreground">
-            Switch to Rapid402 and own your payment infrastructure
+            Choose Rapid402 when you need full control over your payment infrastructure
           </p>
         </div>
       </div>

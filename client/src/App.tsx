@@ -12,6 +12,7 @@ import { BreadcrumbNav } from "@/components/breadcrumb-nav";
 import { ChatWidget } from "@/components/chat-widget";
 import Home from "@/pages/home";
 import QuickStart from "@/pages/quick-start";
+import ComparisonPage from "@/pages/comparison";
 import VerifyPayment from "@/pages/api/verify";
 import SettlePayment from "@/pages/api/settle";
 import HealthCheck from "@/pages/api/health";
@@ -34,6 +35,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/quick-start" component={QuickStart} />
+      <Route path="/comparison" component={ComparisonPage} />
       <Route path="/api/verify" component={VerifyPayment} />
       <Route path="/api/settle" component={SettlePayment} />
       <Route path="/api/health" component={HealthCheck} />
