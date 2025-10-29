@@ -37,7 +37,7 @@ export class Rapid402PaymentHandler implements PaymentHandler {
 
   constructor(config: {
     facilitatorUrl: string;
-    network: 'solana-mainnet' | 'solana-devnet';
+    network: 'solana-mainnet' | 'solana-devnet' | 'base-mainnet' | 'base-sepolia' | 'bsc-mainnet' | 'bsc-testnet';
     treasuryAddress: string;
   }) {
     this.facilitatorUrl = config.facilitatorUrl.replace(/\/$/, '');

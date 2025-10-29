@@ -15,7 +15,7 @@ export type {
 // Additional SDK-specific types
 export interface Rapid402Config {
   facilitatorUrl: string;
-  network: 'solana-mainnet' | 'solana-devnet';
+  network: 'solana-mainnet' | 'solana-devnet' | 'base-mainnet' | 'base-sepolia' | 'bsc-mainnet' | 'bsc-testnet';
   maxPaymentAmount?: bigint;
 }
 

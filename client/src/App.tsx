@@ -22,6 +22,7 @@ import PythonExample from "@/pages/examples/python";
 import CurlExample from "@/pages/examples/curl";
 import SolanaSdkPage from "@/pages/sdk-solana";
 import BaseSdkPage from "@/pages/sdk-base";
+import BnbSdkPage from "@/pages/sdk-bnb";
 import AIAssistant from "@/pages/ai-assistant";
 import Whitepaper from "@/pages/whitepaper";
 import FAQ from "@/pages/support/faq";
@@ -46,6 +47,7 @@ function Router() {
       <Route path="/examples/curl" component={CurlExample} />
       <Route path="/sdk/solana" component={SolanaSdkPage} />
       <Route path="/sdk/base" component={BaseSdkPage} />
+      <Route path="/sdk/bnb" component={BnbSdkPage} />
       <Route path="/ai-assistant" component={AIAssistant} />
       <Route path="/whitepaper" component={Whitepaper} />
       <Route path="/support/faq" component={FAQ} />
