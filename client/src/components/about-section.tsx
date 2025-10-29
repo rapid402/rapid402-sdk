@@ -35,10 +35,10 @@ export function AboutSection() {
             </h2>
             <div className="space-y-4 text-muted-foreground leading-relaxed">
               <p>
-                Rapid402 is an x402 payment facilitator on Solana that enables AI agents to autonomously search, purchase, and pay for resources.
+                Rapid402 is a multi-chain x402 payment facilitator supporting Solana and BASE that enables AI agents to autonomously search, purchase, and pay for resources.
               </p>
               <p>
-                It utilizes Solana's high-speed and low-cost infrastructure to bridge intelligent automation and real-world commerce, making payments accessible and affordable for modern applications.
+                It leverages high-speed, low-cost blockchain infrastructure to bridge intelligent automation and real-world commerce, making payments accessible and affordable for modern applications.
               </p>
             </div>
           </div>

@@ -54,7 +54,7 @@ export const SPECIFICATIONS: Specification[] = [
   },
   {
     category: "Supported Networks",
-    details: "Solana mainnet, Solana devnet",
+    details: "Solana mainnet, Solana devnet, BASE mainnet, BASE Sepolia",
   },
   {
     category: "Payment Schemes",
@@ -62,11 +62,11 @@ export const SPECIFICATIONS: Specification[] = [
   },
   {
     category: "Supported Assets",
-    details: "SOL, USDC, USDT",
+    details: "SOL, ETH, USDC, USDT",
   },
   {
     category: "Capabilities",
-    details: "Verify Payments, Settle Payments, Supported Endpoint, List Resources",
+    details: "Verify Payments, Settle Payments, Multi-Chain Support (Solana + BASE)",
   },
 ];
 
