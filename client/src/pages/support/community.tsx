@@ -46,9 +46,7 @@ export default function Community() {
           <CardContent>
             <Button variant="outline" asChild className="w-full">
               <a
-                href="https://replit.com/@rapid402/rapid402"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="/ai-assistant"
                 data-testid="link-ai-assistant"
               >
                 Chat with AI
