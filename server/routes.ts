@@ -11,6 +11,7 @@ import {
 import OpenAI from "openai";
 import { SolanaService, getTokenMintAddress } from "./solana-service";
 import { BaseService, getTokenContractAddress } from "./base-service";
+import { BscService, getTokenContractAddress as getBscTokenAddress } from "./bsc-service";
 import { Keypair } from "@solana/web3.js";
 
 const startTime = Date.now();
@@ -35,10 +36,22 @@ const baseSepolia = new BaseService({
   facilitatorPrivateKey: process.env.BASE_FACILITATOR_PRIVATE_KEY,
 });
 
+// Initialize BSC services
+const bscMainnet = new BscService({
+  rpcUrl: process.env.BSC_RPC_URL || "https://bsc-dataseed.binance.org",
+  facilitatorPrivateKey: process.env.BSC_FACILITATOR_PRIVATE_KEY,
+});
+
+const bscTestnet = new BscService({
+  rpcUrl: process.env.BSC_TESTNET_RPC_URL || "https://data-seed-prebsc-1-s1.binance.org:8545",
+  facilitatorPrivateKey: process.env.BSC_FACILITATOR_PRIVATE_KEY,
+});
+
 // Helper to determine network type
-function getNetworkType(network: string): "solana" | "base" | "unknown" {
+function getNetworkType(network: string): "solana" | "base" | "bsc" | "unknown" {
   if (network.startsWith("solana-")) return "solana";
   if (network.startsWith("base-")) return "base";
+  if (network.startsWith("bsc-")) return "bsc";
   return "unknown";
 }
 
@@ -50,6 +63,11 @@ function getSolanaService(network: string): SolanaService {
 // Helper to get the right BASE service
 function getBaseService(network: string): BaseService {
   return network === "base-mainnet" ? baseMainnet : baseSepolia;
+}
+
+// Helper to get the right BSC service
+function getBscService(network: string): BscService {
+  return network === "bsc-mainnet" ? bscMainnet : bscTestnet;
 }
 
 // Initialize OpenAI with standard API key
@@ -255,9 +273,18 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
         if (networkType === "solana") {
           const solanaService = getSolanaService(paymentPayload.network);
           verification = await solanaService.verifyPaymentPayload(payload);
-        } else {
+        } else if (networkType === "base") {
           const baseService = getBaseService(paymentPayload.network);
           verification = await baseService.verifyPaymentPayload(payload);
+        } else if (networkType === "bsc") {
+          const bscService = getBscService(paymentPayload.network);
+          verification = await bscService.verifyPaymentPayload(payload);
+        } else {
+          const response: VerifyResponse = {
+            isValid: false,
+            error: "Unsupported network type",
+          };
+          return res.json(response);
         }
 
         if (!verification.isValid) {
@@ -349,8 +376,11 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
       // Check if facilitator keypair is configured
       const hasSolanaKey = !!process.env.FACILITATOR_PRIVATE_KEY;
       const hasBaseKey = !!process.env.BASE_FACILITATOR_PRIVATE_KEY;
+      const hasBscKey = !!process.env.BSC_FACILITATOR_PRIVATE_KEY;
       
-      if ((networkType === "solana" && !hasSolanaKey) || (networkType === "base" && !hasBaseKey)) {
+      if ((networkType === "solana" && !hasSolanaKey) || 
+          (networkType === "base" && !hasBaseKey) ||
+          (networkType === "bsc" && !hasBscKey)) {
         // Return simulated settlement if no private key configured
         console.warn("Settlement simulated - no facilitator private key configured");
         const mockTxHash = Array.from({ length: 66 }, () => 
@@ -407,7 +437,7 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
               BigInt(payload.value as string)
             );
           }
-        } else {
+        } else if (networkType === "base") {
           // BASE settlement
           const baseService = getBaseService(paymentPayload.network);
           
@@ -441,6 +471,43 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
               BigInt(payload.value as string)
             );
           }
+        } else if (networkType === "bsc") {
+          // BSC settlement
+          const bscService = getBscService(paymentPayload.network);
+          
+          // Determine if this is BNB or BEP-20 token transfer
+          const isNativeTransfer = !paymentRequirements.asset || paymentRequirements.asset === 'BNB';
+
+          if (isNativeTransfer) {
+            // Transfer BNB (native token)
+            transactionHash = await bscService.transferBNB(
+              payload.to as string,
+              BigInt(payload.value as string)
+            );
+          } else {
+            // Transfer BEP-20 Token (USDC, USDT, BUSD, etc.)
+            const tokenAddress = getBscTokenAddress(paymentRequirements.asset as string);
+
+            if (!tokenAddress) {
+              const response: SettleResponse = {
+                isValid: false,
+                error: `Unsupported asset: ${paymentRequirements.asset}`,
+              };
+              return res.json(response);
+            }
+
+            transactionHash = await bscService.transferBEP20(
+              tokenAddress,
+              payload.to as string,
+              BigInt(payload.value as string)
+            );
+          }
+        } else {
+          const response: SettleResponse = {
+            isValid: false,
+            error: "Unsupported network type",
+          };
+          return res.json(response);
         }
 
         const response: SettleResponse = {
@@ -529,6 +596,18 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
           rpcUrl: "https://sepolia.base.org",
           explorerUrl: "https://sepolia.basescan.org",
         },
+        {
+          network: "bsc-mainnet",
+          chainId: 56,
+          rpcUrl: "https://bsc-dataseed.binance.org",
+          explorerUrl: "https://bscscan.com",
+        },
+        {
+          network: "bsc-testnet",
+          chainId: 97,
+          rpcUrl: "https://data-seed-prebsc-1-s1.binance.org:8545",
+          explorerUrl: "https://testnet.bscscan.com",
+        },
       ],
       paymentSchemes: ["exact"],
       assets: [
@@ -602,13 +681,49 @@ Answer questions clearly and concisely. Provide code examples when helpful. Focu
           decimals: 6,
           network: "base-sepolia",
         },
+        {
+          symbol: "BNB",
+          name: "Binance Coin (Native Token)",
+          contractAddress: "0x0000000000000000000000000000000000000000",
+          decimals: 18,
+          network: "bsc-mainnet",
+        },
+        {
+          symbol: "USDT",
+          name: "Tether USD",
+          contractAddress: "0x55d398326f99059fF775485246999027B3197955",
+          decimals: 18,
+          network: "bsc-mainnet",
+        },
+        {
+          symbol: "USDC",
+          name: "USD Coin",
+          contractAddress: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+          decimals: 18,
+          network: "bsc-mainnet",
+        },
+        {
+          symbol: "BUSD",
+          name: "Binance USD",
+          contractAddress: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
+          decimals: 18,
+          network: "bsc-mainnet",
+        },
+        {
+          symbol: "BNB",
+          name: "Binance Coin Testnet (Native Token)",
+          contractAddress: "0x0000000000000000000000000000000000000000",
+          decimals: 18,
+          network: "bsc-testnet",
+        },
       ],
       capabilities: [
         "Verify Payments",
         "Settle Payments",
         "SPL Token Support",
         "ERC-20 Token Support",
-        "Multi-Chain (Solana + BASE)",
+        "BEP-20 Token Support",
+        "Multi-Chain (Solana + BASE + BSC)",
       ],
     };
 
